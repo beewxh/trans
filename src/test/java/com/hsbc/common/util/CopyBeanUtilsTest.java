@@ -1,13 +1,11 @@
 package com.hsbc.common.util;
 
 import lombok.Data;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class CopyBeanUtilsTest {
 
