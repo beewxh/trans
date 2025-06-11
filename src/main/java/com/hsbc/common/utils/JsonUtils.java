@@ -1,4 +1,4 @@
-package com.hsbc.trans.util;
+package com.hsbc.common.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;

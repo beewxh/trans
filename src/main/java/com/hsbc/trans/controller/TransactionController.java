@@ -1,21 +1,21 @@
 package com.hsbc.trans.controller;
 
 import com.hsbc.common.response.CommonResponse;
-import com.hsbc.trans.bean.PageRequest;
-import com.hsbc.trans.bean.PageResult;
+import com.hsbc.common.validation.EnumValue;
+import com.hsbc.common.validation.ValidationUtils;
 import com.hsbc.trans.bean.Transaction;
 import com.hsbc.trans.enums.TransactionStatus;
-import com.hsbc.trans.enums.TransactionType;
 import com.hsbc.trans.service.TransactionService;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
+import com.hsbc.trans.vo.PageRequest;
+import com.hsbc.trans.vo.PageResult;
+import com.hsbc.trans.vo.TransactionReq;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -25,29 +25,30 @@ public class TransactionController {
 
     private final TransactionService transactionService;
 
+    private final ValidationUtils validationUtils;
+
     @Autowired
-    public TransactionController(TransactionService transactionService) {
+    public TransactionController(TransactionService transactionService, ValidationUtils validationUtils) {
         this.transactionService = transactionService;
+        this.validationUtils = validationUtils;
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<CommonResponse<Transaction>> createTransaction(
-        @RequestParam @NotBlank String transId,
-        @RequestParam @NotBlank String userId,
-        @RequestParam @NotNull @DecimalMin("0.01") BigDecimal amount,
-        @RequestParam @NotBlank String description,
-        @RequestParam @NotNull TransactionType type) {
-        return ResponseEntity.ok(CommonResponse.succeed(transactionService.createTransaction(transId, userId, amount, description, type)));
+        @RequestBody TransactionReq req) {
+        validationUtils.validateParams(req);
+        return ResponseEntity.ok(CommonResponse.succeed(
+            transactionService.createTransaction(req.getTransId(), req.getUserId(), req.getAmount(), req.getDescription(), req.getType())));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CommonResponse<Transaction>> getTransaction(@PathVariable Long id) {
-        return ResponseEntity.ok(CommonResponse.succeed(transactionService.getTransaction(id)));
+    public ResponseEntity<CommonResponse<Transaction>> getTransaction(@PathVariable @Positive String id) {
+        return ResponseEntity.ok(CommonResponse.succeed(transactionService.getTransaction(Long.valueOf(id))));
     }
 
-    @GetMapping
+    @GetMapping("/page")
     public ResponseEntity<CommonResponse<PageResult<Transaction>>> getTransactions(
-        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "1") int page,
         @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(CommonResponse.succeed(transactionService.getTransactions(new PageRequest(page, size))));
     }
@@ -57,14 +58,14 @@ public class TransactionController {
         return ResponseEntity.ok(CommonResponse.succeed(transactionService.getAllTransactions()));
     }
 
-    @PatchMapping("/{id}/status")
+    @GetMapping("/{id}/status/update")
     public ResponseEntity<CommonResponse<Transaction>> updateTransactionStatus(
-        @PathVariable Long id,
-        @RequestParam @NotNull TransactionStatus status) {
-        return ResponseEntity.ok(CommonResponse.succeed(transactionService.updateTransactionStatus(id, status)));
+        @PathVariable @Positive String id,
+        @RequestParam @NotNull @EnumValue(enumClass = TransactionStatus.class, message = "交易状态枚举值错误") String status) {
+        return ResponseEntity.ok(CommonResponse.succeed(transactionService.updateTransactionStatus(Long.valueOf(id), TransactionStatus.valueOf(status))));
     }
 
-    @DeleteMapping("/{id}")
+    @PostMapping("/{id}/delete")
     public ResponseEntity<Void> deleteTransaction(@PathVariable Long id) {
         transactionService.deleteTransaction(id);
         return ResponseEntity.noContent().build();

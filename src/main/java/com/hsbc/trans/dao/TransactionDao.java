@@ -1,7 +1,7 @@
 package com.hsbc.trans.dao;
 
-import com.hsbc.trans.bean.PageRequest;
-import com.hsbc.trans.bean.PageResult;
+import com.hsbc.trans.vo.PageRequest;
+import com.hsbc.trans.vo.PageResult;
 import com.hsbc.trans.bean.Transaction;
 
 import java.util.List;

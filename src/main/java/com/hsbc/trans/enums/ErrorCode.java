@@ -3,7 +3,7 @@ package com.hsbc.trans.enums;
 
 import com.hsbc.common.errorhandler.enums.ErrorLevel;
 import com.hsbc.common.errorhandler.enums.ErrorType;
-import com.hsbc.trans.util.JsonUtils;
+import com.hsbc.common.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -20,7 +20,8 @@ public enum ErrorCode {
     /**
      * 业务错误码
      */
-    TRANSACTION_NOT_FOUND("100001", "交易订单未找到", ErrorType.BUSINESS_ERROR, ErrorLevel.ERROR),
+    TRANSACTION_NOT_FOUND("100001", "交易订单未找到"),
+    TRANSACTION_ALREADY_EXISTS("100002", "交易订单已存在", ErrorType.BUSINESS_ERROR, ErrorLevel.WARN),
 
 
     ;

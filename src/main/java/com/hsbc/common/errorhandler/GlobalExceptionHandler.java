@@ -1,10 +1,12 @@
 package com.hsbc.common.errorhandler;
 
+import com.hsbc.common.errorhandler.exception.ParamValidationException;
 import com.hsbc.trans.enums.ErrorCode;
 import com.hsbc.common.errorhandler.exception.BusinessException;
 import com.hsbc.common.response.CommonResponse;
 import com.hsbc.common.errorhandler.enums.ErrorLevel;
 import com.hsbc.common.errorhandler.bean.ErrorResponse;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +27,18 @@ public class GlobalExceptionHandler {
         } else {
             log.info("business error caught by exception handler, code: {}, msg: {}", ex.getCode(), ex.getMessage(), ex);
         }
+        if (ex instanceof ParamValidationException) {
+            error.setMessage(error.getMessage() + "(" + ex.getMessage() + ")");
+        }
+        return new ResponseEntity<>(CommonResponse.fail(error), HttpStatus.OK);
+    }
+
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<CommonResponse<Object>> handleGlobalException(ConstraintViolationException ex) {
+        ErrorResponse error = new ErrorResponse(ErrorCode.PARAM_ERROR.getCode());
+        error.setMessage(error.getMessage() + "(" + ex.getMessage() + ")");
+        log.error("validation error caught by exception handler, code: {}, msg: {}", error.getCode(), ex.getMessage(), ex);
         return new ResponseEntity<>(CommonResponse.fail(error), HttpStatus.OK);
     }
 

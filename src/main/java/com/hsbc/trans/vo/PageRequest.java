@@ -1,8 +1,6 @@
-package com.hsbc.trans.bean;
+package com.hsbc.trans.vo;
 
 import lombok.Data;
-
-import java.util.List;
 
 @Data
 public class PageRequest {

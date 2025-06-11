@@ -1,7 +1,7 @@
 package com.hsbc.trans.service;
 
-import com.hsbc.trans.bean.PageRequest;
-import com.hsbc.trans.bean.PageResult;
+import com.hsbc.trans.vo.PageRequest;
+import com.hsbc.trans.vo.PageResult;
 import com.hsbc.trans.bean.Transaction;
 import com.hsbc.trans.enums.TransactionStatus;
 import com.hsbc.trans.enums.TransactionType;

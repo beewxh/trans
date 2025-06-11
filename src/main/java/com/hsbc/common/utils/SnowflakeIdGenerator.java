@@ -1,4 +1,4 @@
-package com.hsbc.trans.util;
+package com.hsbc.common.utils;
 
 import com.hsbc.common.errorhandler.exception.FrameworkException;
 import org.springframework.beans.factory.annotation.Value;

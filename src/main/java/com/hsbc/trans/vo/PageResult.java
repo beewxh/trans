@@ -1,4 +1,4 @@
-package com.hsbc.trans.bean;
+package com.hsbc.trans.vo;
 
 import lombok.Data;
 import java.util.Collections;
@@ -24,7 +24,7 @@ public class PageResult<T> {
         this.pageNumber = pageRequest.getPageNumber();
         this.pageSize = pageRequest.getPageSize();
         this.totalPages = pageSize == 0 ? 1 : (int) Math.ceil((double) totalElements / pageSize);
-        this.first = pageNumber == 0;
+        this.first = pageNumber == 1;
         this.last = pageNumber >= totalPages - 1;
     }
     

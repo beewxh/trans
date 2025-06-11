@@ -2,6 +2,8 @@ package com.hsbc.trans.enums;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+
 @Getter
 public enum TransactionStatus {
     PENDING("待处理"),
@@ -14,4 +16,5 @@ public enum TransactionStatus {
     TransactionStatus(String description) {
         this.description = description;
     }
+
 } 

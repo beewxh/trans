@@ -2,6 +2,7 @@ package com.hsbc.trans.bean;
 
 import com.hsbc.trans.enums.TransactionStatus;
 import com.hsbc.trans.enums.TransactionType;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -25,7 +26,7 @@ public class Transaction {
     private String userId;
 
     @NotNull
-    @PositiveOrZero
+    @DecimalMin("0.01")
     private BigDecimal amount;
 
     @NotNull

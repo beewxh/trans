@@ -1,16 +1,19 @@
 package com.hsbc.trans.dao;
 
 import com.hsbc.common.errorhandler.exception.BusinessException;
-import com.hsbc.trans.bean.PageRequest;
-import com.hsbc.trans.bean.PageResult;
 import com.hsbc.trans.bean.Transaction;
 import com.hsbc.trans.enums.ErrorCode;
-import com.hsbc.trans.util.ValidationUtils;
+import com.hsbc.common.validation.ValidationUtils;
+import com.hsbc.trans.vo.PageRequest;
+import com.hsbc.trans.vo.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.stream.Collectors;
@@ -31,7 +34,7 @@ public class TransactionDaoMemoryImpl implements TransactionDao {
 
         validationUtils.validate(transaction);
         if (existsByTransId(transaction.getTransId())) {
-            throw new RuntimeException(); //TODO
+            throw new BusinessException("Transaction already exists " + transaction.getTransId()).code(ErrorCode.TRANSACTION_ALREADY_EXISTS.getCode());
         }
         transIdIndexMap.put(transaction.getTransId(), transaction.getId());
         transactionStore.put(transaction.getId(), transaction);

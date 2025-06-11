@@ -1,14 +1,14 @@
 package com.hsbc.trans.service;
 
-import com.hsbc.trans.bean.PageRequest;
-import com.hsbc.trans.bean.PageResult;
+import com.hsbc.trans.vo.PageRequest;
+import com.hsbc.trans.vo.PageResult;
 import com.hsbc.trans.bean.Transaction;
 import com.hsbc.trans.dao.TransactionDao;
 import com.hsbc.trans.enums.TransactionStatus;
 import com.hsbc.trans.enums.TransactionType;
 import com.hsbc.common.errorhandler.exception.BusinessException;
 import com.hsbc.trans.enums.ErrorCode;
-import com.hsbc.trans.util.SnowflakeIdGenerator;
+import com.hsbc.common.utils.SnowflakeIdGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
