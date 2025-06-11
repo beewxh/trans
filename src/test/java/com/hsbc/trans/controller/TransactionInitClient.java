@@ -2,7 +2,7 @@ package com.hsbc.trans.controller;
 
 import com.hsbc.common.response.CommonResponse;
 import com.hsbc.trans.enums.TransactionType;
-import com.hsbc.common.utils.JsonUtils;
+import com.hsbc.common.util.JsonUtils;
 import com.hsbc.trans.vo.TransactionReq;
 import lombok.extern.slf4j.Slf4j;
 

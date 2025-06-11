@@ -3,11 +3,4 @@ server:
 
 logging:
   level:
-    com.hsbc.trans: DEBUG
-
-# 缓存配置
-spring:
-  cache:
-    type: caffeine
-    caffeine:
-      spec: maximumSize=500,expireAfterAccess=600s 
+    com.hsbc.trans: DEBUG 

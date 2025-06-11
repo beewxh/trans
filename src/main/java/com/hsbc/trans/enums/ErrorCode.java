@@ -3,9 +3,11 @@ package com.hsbc.trans.enums;
 
 import com.hsbc.common.errorhandler.enums.ErrorLevel;
 import com.hsbc.common.errorhandler.enums.ErrorType;
-import com.hsbc.common.utils.JsonUtils;
+import com.hsbc.common.util.JsonUtils;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+@Getter
 @Slf4j
 public enum ErrorCode {
 
@@ -21,10 +23,9 @@ public enum ErrorCode {
      * 业务错误码
      */
     TRANSACTION_NOT_FOUND("100001", "交易订单未找到"),
-    TRANSACTION_ALREADY_EXISTS("100002", "交易订单已存在", ErrorType.BUSINESS_ERROR, ErrorLevel.WARN),
+    TRANSACTION_DUPLICATE("100002", "交易订单已存在", ErrorType.BUSINESS_ERROR, ErrorLevel.WARN),
     TRANSACTION_NOT_CHANGED("100003", "更新操作时交易订单没有变更", ErrorType.BUSINESS_ERROR, ErrorLevel.WARN),
-
-
+    TRANSACTION_UPDATE_STATUS_INVALID("100004", "更新操作时状态变迁不合法"),
     ;
 
 
@@ -48,22 +49,6 @@ public enum ErrorCode {
         this.level = ErrorLevel.ERROR;
     }
 
-
-    public String getCode() {
-        return code;
-    }
-
-    public String getMsg() {
-        return msg;
-    }
-
-    public ErrorType getType() {
-        return type;
-    }
-
-    public ErrorLevel getLevel() {
-        return level;
-    }
 
     public static ErrorCode getByCode(String code) {
         ErrorCode[] errors = ErrorCode.values();

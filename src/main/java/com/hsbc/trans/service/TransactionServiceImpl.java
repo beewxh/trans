@@ -1,18 +1,16 @@
 package com.hsbc.trans.service;
 
-import com.hsbc.trans.vo.PageRequest;
-import com.hsbc.trans.vo.PageResult;
+import com.hsbc.common.errorhandler.exception.BusinessException;
+import com.hsbc.common.util.SnowflakeIdGenerator;
 import com.hsbc.trans.bean.Transaction;
 import com.hsbc.trans.dao.TransactionDao;
+import com.hsbc.trans.enums.ErrorCode;
 import com.hsbc.trans.enums.TransactionStatus;
 import com.hsbc.trans.enums.TransactionType;
-import com.hsbc.common.errorhandler.exception.BusinessException;
-import com.hsbc.trans.enums.ErrorCode;
-import com.hsbc.common.utils.SnowflakeIdGenerator;
+import com.hsbc.trans.vo.PageRequest;
+import com.hsbc.trans.vo.PageResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -24,6 +22,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionDao transactionDao;
     private final SnowflakeIdGenerator idGenerator;
+
 
     @Autowired
     public TransactionServiceImpl(TransactionDao transactionDao, SnowflakeIdGenerator idGenerator) {
@@ -38,7 +37,6 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    @Cacheable(value = "transactions", key = "#id")
     public Transaction getTransaction(Long id) {
         return transactionDao.queryById(id)
             .orElseThrow(() -> new BusinessException("Transaction not found with id: " + id).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode()));
@@ -50,21 +48,30 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public PageResult<Transaction> getTransactions(PageRequest pageRequest) {
+    public PageResult<Transaction> getTransactionPage(PageRequest pageRequest) {
         return transactionDao.queryPage(pageRequest);
     }
 
     @Override
-    @CacheEvict(value = "transactions", key = "#id")
-    public Transaction updateTransactionStatus(Long id, TransactionStatus status) {
+    public Transaction updateTransactionStatus(Long id, TransactionStatus status, String description) {
         Transaction transaction = this.getTransaction(id);
+        if (!TransactionStatus.canTransit(transaction.getStatus(), status)) {
+            throw new BusinessException("Transaction can't be updated, due to invalid status transition: " + transaction.getStatus() + " -> " + status)
+                .code(ErrorCode.TRANSACTION_UPDATE_STATUS_INVALID.getCode());
+        }
         transaction.setStatus(status);
+        transaction.setDescription(description);
         return transactionDao.updateById(transaction);
     }
 
     @Override
-    @CacheEvict(value = "transactions", key = "#id")
-    public void deleteTransaction(Long id) {
-        transactionDao.deleteById(id);
+    public Transaction deleteTransaction(Long id) {
+        return transactionDao.deleteById(id);
+    }
+
+    @Override
+    public Transaction getTransactionByTransId(String transId) {
+        return transactionDao.queryByTransId(transId)
+            .orElseThrow(() -> new BusinessException("Transaction not found with transId: " + transId).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode()));
     }
 } 

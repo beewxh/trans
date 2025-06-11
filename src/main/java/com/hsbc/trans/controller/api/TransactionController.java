@@ -1,4 +1,4 @@
-package com.hsbc.trans.controller;
+package com.hsbc.trans.controller.api;
 
 import com.hsbc.common.response.CommonResponse;
 import com.hsbc.common.validation.EnumValue;
@@ -11,6 +11,7 @@ import com.hsbc.trans.vo.PageResult;
 import com.hsbc.trans.vo.TransactionReq;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -47,10 +48,10 @@ public class TransactionController {
     }
 
     @GetMapping("/page")
-    public ResponseEntity<CommonResponse<PageResult<Transaction>>> getTransactions(
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(CommonResponse.succeed(transactionService.getTransactions(new PageRequest(page, size))));
+    public ResponseEntity<CommonResponse<PageResult<Transaction>>> getTransactionPage(
+        @RequestParam(defaultValue = "0") @PositiveOrZero int page,
+        @RequestParam(defaultValue = "10") @Positive int size) {
+        return ResponseEntity.ok(CommonResponse.succeed(transactionService.getTransactionPage(new PageRequest(page, size))));
     }
 
     @GetMapping("/all")
@@ -58,16 +59,28 @@ public class TransactionController {
         return ResponseEntity.ok(CommonResponse.succeed(transactionService.getAllTransactions()));
     }
 
-    @GetMapping("/{id}/status/update")
+    @GetMapping("/{id}/update")
     public ResponseEntity<CommonResponse<Transaction>> updateTransactionStatus(
         @PathVariable @Positive String id,
-        @RequestParam @NotNull @EnumValue(enumClass = TransactionStatus.class, message = "交易状态枚举值错误") String status) {
-        return ResponseEntity.ok(CommonResponse.succeed(transactionService.updateTransactionStatus(Long.valueOf(id), TransactionStatus.valueOf(status))));
+        @RequestParam @NotNull @EnumValue(enumClass = TransactionStatus.class, message = "交易状态枚举值错误") String status,
+        @RequestParam String description
+    ) {
+        return ResponseEntity.ok(CommonResponse.succeed(
+            transactionService.updateTransactionStatus(Long.valueOf(id), TransactionStatus.valueOf(status), description)));
     }
 
     @PostMapping("/{id}/delete")
     public ResponseEntity<Void> deleteTransaction(@PathVariable Long id) {
         transactionService.deleteTransaction(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/trans/{transId}")
+    public ResponseEntity<CommonResponse<Transaction>> getTransactionByTransId(@PathVariable String transId) {
+        return ResponseEntity.ok(CommonResponse.succeed(transactionService.getTransactionByTransId(transId)));
+    }
+
+
+
+
 } 

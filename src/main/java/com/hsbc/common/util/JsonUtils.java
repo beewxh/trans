@@ -1,6 +1,7 @@
-package com.hsbc.common.utils;
+package com.hsbc.common.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -51,6 +52,35 @@ public class JsonUtils {
         } catch (JsonProcessingException e) {
             throw new FrameworkException("解析JSON字符串失败", e);
         }
+    }
+
+    /**
+     * 将JSON字符串转换为对象（支持泛型）
+     *
+     * @param json JSON字符串
+     * @param typeReference 类型引用
+     * @return 转换后的对象
+     */
+    public static <T> T fromJson(String json, TypeReference<T> typeReference) {
+        if (!StringUtils.hasText(json)) {
+            return null;
+        }
+        try {
+            return MAPPER.readValue(json, typeReference);
+        } catch (JsonProcessingException e) {
+            throw new FrameworkException("解析JSON字符串失败", e);
+        }
+    }
+
+    /**
+     * 将JSON字符串转换为对象
+     *
+     * @param json JSON字符串
+     * @param clazz 目标类型
+     * @return 转换后的对象
+     */
+    public static <T> T fromJson(String json, Class<T> clazz) {
+        return toBean(json, clazz);
     }
 
     /**

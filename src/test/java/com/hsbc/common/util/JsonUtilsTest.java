@@ -1,6 +1,5 @@
 package com.hsbc.common.util;
 
-import com.hsbc.common.utils.JsonUtils;
 import com.hsbc.trans.bean.Transaction;
 import lombok.extern.slf4j.Slf4j;
 

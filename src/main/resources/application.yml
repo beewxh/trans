@@ -6,16 +6,6 @@ spring:
         name: trans
     profiles:
         active: local
-    cache:
-        type: caffeine
-        caffeine:
-            spec: maximumSize=500,expireAfterAccess=600s
-    jpa:
-        open-in-view: false
-        properties:
-            hibernate:
-                jdbc:
-                    time_zone: GMT+8
 
 logging:
     level:

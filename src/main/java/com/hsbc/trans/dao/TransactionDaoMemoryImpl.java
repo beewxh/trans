@@ -32,18 +32,16 @@ public class TransactionDaoMemoryImpl implements TransactionDao {
 
     @Override
     public Transaction add(Transaction transaction) {
-
         validationUtils.validate(transaction);
         if (existsByTransId(transaction.getTransId())) {
-            throw new BusinessException("Transaction already exists " + transaction.getTransId()).code(ErrorCode.TRANSACTION_ALREADY_EXISTS.getCode());
+            throw new BusinessException("Transaction already exists " + transaction.getTransId()).code(ErrorCode.TRANSACTION_DUPLICATE.getCode());
         }
         transIdIndexMap.put(transaction.getTransId(), transaction.getId());
         store.put(transaction.getId(), transaction);
         return transaction;
     }
 
-    @Override
-    public boolean existsByTransId(String transId) {
+    private boolean existsByTransId(String transId) {
         return transIdIndexMap.containsKey(transId) && store.exists(transIdIndexMap.get(transId));
     }
 
@@ -75,6 +73,11 @@ public class TransactionDaoMemoryImpl implements TransactionDao {
             throw new BusinessException("Transaction not found with id: " + transaction.getId()).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode());
         }
         synchronized (store.getLockKey(transaction.getId())) {
+//            try {
+//                Thread.sleep(5000);
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
             if (store.exists(transaction.getId())) { // 锁记录后重新检查记录存在
                 Transaction origin = store.get(transaction.getId());
                 if (assign(origin, transaction)) {
@@ -108,15 +111,21 @@ public class TransactionDaoMemoryImpl implements TransactionDao {
 
 
     @Override
-    public void deleteById(Long id) {
+    public Transaction deleteById(Long id) {
 
         if (!store.exists(id)) {
             throw new BusinessException("Transaction not found with id: " + id).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode());
         }
         synchronized (store.getLockKey(id)) {
+//            try {
+//                Thread.sleep(5000);
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
             if (store.exists(id)) { // 锁记录后重新检查记录存在
                 Transaction transaction = store.delete(id);
                 transIdIndexMap.remove(transaction.getTransId());
+                return transaction;
             } else {
                 throw new BusinessException("while concurrent operating, transaction not found with id: " + id).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode());
             }

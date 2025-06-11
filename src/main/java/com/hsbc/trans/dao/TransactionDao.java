@@ -21,8 +21,6 @@ public interface TransactionDao {
 
     Transaction updateById(Transaction transaction);
 
-    void deleteById(Long id);
-
-    boolean existsByTransId(String transId);
+    Transaction deleteById(Long id);
 
 }
