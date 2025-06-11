@@ -1,9 +1,10 @@
 package com.hsbc.trans.dao;
 
+import com.hsbc.common.errorhandler.exception.BusinessException;
 import com.hsbc.trans.bean.PageRequest;
 import com.hsbc.trans.bean.PageResult;
 import com.hsbc.trans.bean.Transaction;
-import com.hsbc.trans.exception.TransactionNotFoundException;
+import com.hsbc.trans.enums.ErrorCode;
 import com.hsbc.trans.util.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -73,7 +74,7 @@ public class TransactionDaoMemoryImpl implements TransactionDao {
     @Override
     public Transaction updateById(Transaction transaction) {
         if (!existsById(transaction.getId())) {
-            throw new TransactionNotFoundException("Transaction not found with id: " + transaction.getId());
+            throw new BusinessException("Transaction not found with id: " + transaction.getId()).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode());
         }
         Transaction origin = transactionStore.get(transaction.getId());
         synchronized (origin) {
@@ -94,7 +95,7 @@ public class TransactionDaoMemoryImpl implements TransactionDao {
     public void deleteById(Long id) {
         Transaction transaction = transactionStore.get(id);
         if (transaction == null) {
-            throw new TransactionNotFoundException("Transaction not found with id: " + id);
+            throw new BusinessException("Transaction not found with id: " + id).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode());
         }
         synchronized (transaction) {
             transactionStore.remove(id);

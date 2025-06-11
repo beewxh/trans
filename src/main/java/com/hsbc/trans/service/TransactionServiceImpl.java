@@ -6,7 +6,8 @@ import com.hsbc.trans.bean.Transaction;
 import com.hsbc.trans.dao.TransactionDao;
 import com.hsbc.trans.enums.TransactionStatus;
 import com.hsbc.trans.enums.TransactionType;
-import com.hsbc.trans.exception.TransactionNotFoundException;
+import com.hsbc.common.errorhandler.exception.BusinessException;
+import com.hsbc.trans.enums.ErrorCode;
 import com.hsbc.trans.util.SnowflakeIdGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +32,8 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public Transaction createTransaction(BigDecimal amount, String description, TransactionType type) {
-        Transaction transaction = new Transaction(idGenerator.nextId(), amount, description, type);
+    public Transaction createTransaction(String transId, String userId, BigDecimal amount, String description, TransactionType type) {
+        Transaction transaction = new Transaction(idGenerator.nextId(), transId, userId, amount, description, type);
         return transactionDao.add(transaction);
     }
 
@@ -40,7 +41,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Cacheable(value = "transactions", key = "#id")
     public Transaction getTransaction(Long id) {
         return transactionDao.queryById(id)
-                .orElseThrow(() -> new TransactionNotFoundException("Transaction not found with id: " + id));
+            .orElseThrow(() -> new BusinessException("Transaction not found with id: " + id).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode()));
     }
 
     @Override

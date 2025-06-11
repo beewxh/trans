@@ -1,5 +1,6 @@
 package com.hsbc.trans.controller;
 
+import com.hsbc.common.response.CommonResponse;
 import com.hsbc.trans.bean.PageRequest;
 import com.hsbc.trans.bean.PageResult;
 import com.hsbc.trans.bean.Transaction;
@@ -30,35 +31,37 @@ public class TransactionController {
     }
 
     @PostMapping
-    public ResponseEntity<Transaction> createTransaction(
-            @RequestParam @NotNull @DecimalMin("0.01") BigDecimal amount,
-            @RequestParam @NotBlank String description,
-            @RequestParam @NotNull TransactionType type) {
-        return ResponseEntity.ok(transactionService.createTransaction(amount, description, type));
+    public ResponseEntity<CommonResponse<Transaction>> createTransaction(
+        @RequestParam @NotBlank String transId,
+        @RequestParam @NotBlank String userId,
+        @RequestParam @NotNull @DecimalMin("0.01") BigDecimal amount,
+        @RequestParam @NotBlank String description,
+        @RequestParam @NotNull TransactionType type) {
+        return ResponseEntity.ok(CommonResponse.succeed(transactionService.createTransaction(transId, userId, amount, description, type)));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Transaction> getTransaction(@PathVariable Long id) {
-        return ResponseEntity.ok(transactionService.getTransaction(id));
+    public ResponseEntity<CommonResponse<Transaction>> getTransaction(@PathVariable Long id) {
+        return ResponseEntity.ok(CommonResponse.succeed(transactionService.getTransaction(id)));
     }
 
     @GetMapping
-    public ResponseEntity<PageResult<Transaction>> getTransactions(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(transactionService.getTransactions(new PageRequest(page, size)));
+    public ResponseEntity<CommonResponse<PageResult<Transaction>>> getTransactions(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(CommonResponse.succeed(transactionService.getTransactions(new PageRequest(page, size))));
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<Transaction>> getAllTransactions() {
-        return ResponseEntity.ok(transactionService.getAllTransactions());
+    public ResponseEntity<CommonResponse<List<Transaction>>> getAllTransactions() {
+        return ResponseEntity.ok(CommonResponse.succeed(transactionService.getAllTransactions()));
     }
 
     @PatchMapping("/{id}/status")
-    public ResponseEntity<Transaction> updateTransactionStatus(
-            @PathVariable Long id,
-            @RequestParam @NotNull TransactionStatus status) {
-        return ResponseEntity.ok(transactionService.updateTransactionStatus(id, status));
+    public ResponseEntity<CommonResponse<Transaction>> updateTransactionStatus(
+        @PathVariable Long id,
+        @RequestParam @NotNull TransactionStatus status) {
+        return ResponseEntity.ok(CommonResponse.succeed(transactionService.updateTransactionStatus(id, status)));
     }
 
     @DeleteMapping("/{id}")

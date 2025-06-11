@@ -42,12 +42,15 @@ public class Transaction {
     private String description;
 
 
-    public Transaction(Long id, BigDecimal amount, String description, TransactionType type) {
+    public Transaction(Long id, String transId, String userId, BigDecimal amount, String description, TransactionType type) {
         this.id = id;
+        this.transId = transId;
+        this.userId = userId;
         this.amount = amount;
         this.description = description;
         this.type = type;
         this.createTime = new Timestamp(System.currentTimeMillis());
+        this.updateTime = new Timestamp(System.currentTimeMillis());
         this.status = TransactionStatus.PENDING;
     }
 } 

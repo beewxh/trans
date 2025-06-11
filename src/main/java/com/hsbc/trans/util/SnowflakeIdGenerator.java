@@ -1,5 +1,6 @@
 package com.hsbc.trans.util;
 
+import com.hsbc.common.errorhandler.exception.FrameworkException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -54,7 +55,7 @@ public class SnowflakeIdGenerator {
 
         // 如果当前时间小于上一次ID生成的时间戳，说明系统时钟回退过，抛出异常
         if (timestamp < lastTimestamp) {
-            throw new RuntimeException(String.format(
+            throw new FrameworkException(String.format(
                     "Clock moved backwards. Refusing to generate id for %d milliseconds",
                     lastTimestamp - timestamp));
         }
