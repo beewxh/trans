@@ -41,14 +41,14 @@ public class TransactionInnerController {
     public ResponseEntity<CommonResponse<Void>> clearAllTransactions() {
         log.info("开始清空所有交易数据");
         List<Transaction> allTransactions = transactionService.getAllTransactions();
-
+        
         int count = 0;
         for (Transaction transaction : allTransactions) {
             transactionService.deleteTransaction(transaction.getId());
-            log.info("交易记录" + transaction.getId() + "被删除，" + transaction);
+            log.info("交易记录已删除，ID：{}，详情：{}", transaction.getId(), transaction);
             count++;
         }
-
+        
         log.info("交易数据清理完成，共清理{}条记录", count);
         return ResponseEntity.ok(CommonResponse.succeed(null));
     }

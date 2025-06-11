@@ -34,7 +34,7 @@ public class TransactionDaoMemoryImpl implements TransactionDao {
     public Transaction add(Transaction transaction) {
         validationUtils.validate(transaction);
         if (existsByTransId(transaction.getTransId())) {
-            throw new BusinessException("Transaction already exists " + transaction.getTransId()).code(ErrorCode.TRANSACTION_DUPLICATE.getCode());
+            throw new BusinessException("交易记录已存在：" + transaction.getTransId()).code(ErrorCode.TRANSACTION_DUPLICATE.getCode());
         }
         transIdIndexMap.put(transaction.getTransId(), transaction.getId());
         store.put(transaction.getId(), transaction);
@@ -70,23 +70,23 @@ public class TransactionDaoMemoryImpl implements TransactionDao {
     @Override
     public Transaction updateById(Transaction transaction) {
         if (!store.exists(transaction.getId())) {
-            throw new BusinessException("Transaction not found with id: " + transaction.getId()).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode());
+            throw new BusinessException("交易记录不存在，ID：" + transaction.getId()).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode());
         }
         synchronized (store.getLockKey(transaction.getId())) {
 //            try {
 //                Thread.sleep(5000);
 //            } catch (InterruptedException e) {
-//                throw new RuntimeException(e);
+//                throw new RuntimeException("线程被中断", e);
 //            }
             if (store.exists(transaction.getId())) { // 锁记录后重新检查记录存在
                 Transaction origin = store.get(transaction.getId());
                 if (assign(origin, transaction)) {
                     store.put(transaction.getId(), origin);
                 } else {
-                    throw new BusinessException("transaction not changed while updating, " + transaction.getId()).code(ErrorCode.TRANSACTION_NOT_CHANGED.getCode());
+                    throw new BusinessException("交易记录未发生变更，ID：" + transaction.getId()).code(ErrorCode.TRANSACTION_NOT_CHANGED.getCode());
                 }
             } else {
-                throw new BusinessException("while concurrent operating, transaction not found with id: " + transaction.getId()).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode());
+                throw new BusinessException("并发操作时交易记录不存在，ID：" + transaction.getId()).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode());
             }
         }
         return transaction;
@@ -112,22 +112,21 @@ public class TransactionDaoMemoryImpl implements TransactionDao {
 
     @Override
     public Transaction deleteById(Long id) {
-
         if (!store.exists(id)) {
-            throw new BusinessException("Transaction not found with id: " + id).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode());
+            throw new BusinessException("交易记录不存在，ID：" + id).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode());
         }
         synchronized (store.getLockKey(id)) {
 //            try {
 //                Thread.sleep(5000);
 //            } catch (InterruptedException e) {
-//                throw new RuntimeException(e);
+//                throw new RuntimeException("线程被中断", e);
 //            }
             if (store.exists(id)) { // 锁记录后重新检查记录存在
                 Transaction transaction = store.delete(id);
                 transIdIndexMap.remove(transaction.getTransId());
                 return transaction;
             } else {
-                throw new BusinessException("while concurrent operating, transaction not found with id: " + id).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode());
+                throw new BusinessException("并发操作时交易记录不存在，ID：" + id).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode());
             }
         }
     }

@@ -96,7 +96,7 @@ public class TransactionSyncTestClient {
     @Test
     void testConcurrentUpdateStatus() throws Exception {
         log.info("开始测试并发更新交易状态...");
-        int threadCount = 3; // 减少线程数，因为每个操作要5秒
+        int threadCount = 3;
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch endLatch = new CountDownLatch(threadCount);
         List<String> executionOrder = new ArrayList<>();
@@ -122,13 +122,12 @@ public class TransactionSyncTestClient {
                         .GET()
                         .build();
 
-                    // 记录执行顺序
-                    executionOrder.add("Thread-" + index + " Start");
+                    executionOrder.add("线程-" + index + " 开始");
                     
                     HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
                     log.info("线程 {} 更新响应: {}", threadName, response.body());
                     
-                    executionOrder.add("Thread-" + index + " End");
+                    executionOrder.add("线程-" + index + " 结束");
                     
                     assertEquals(200, response.statusCode());
                     assertTrue(response.body().contains(ResponseCode.SUCC.getCode()));
@@ -140,18 +139,15 @@ public class TransactionSyncTestClient {
             });
         }
 
-        // 启动所有线程
         startLatch.countDown();
         
-        // 等待所有线程完成，因为每个操作5秒，所以总时间要长一些
         boolean allFinished = endLatch.await(60, TimeUnit.SECONDS);
         assertTrue(allFinished, "并发测试超时");
         
-        // 验证执行顺序
         log.info("执行顺序: {}", executionOrder);
         for (int i = 0; i < threadCount; i++) {
-            int startIndex = executionOrder.indexOf("Thread-" + i + " Start");
-            int endIndex = executionOrder.indexOf("Thread-" + i + " End");
+            int startIndex = executionOrder.indexOf("线程-" + i + " 开始");
+            int endIndex = executionOrder.indexOf("线程-" + i + " 结束");
             assertTrue(startIndex >= 0 && endIndex >= 0 && endIndex > startIndex,
                 "线程 " + i + " 的执行顺序不正确");
         }
@@ -163,18 +159,17 @@ public class TransactionSyncTestClient {
     @Test
     void testConcurrentDelete() throws Exception {
         log.info("开始测试并发删除交易...");
-        int threadCount = 2; // 减少线程数，因为每个操作要5秒
+        int threadCount = 2;
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch endLatch = new CountDownLatch(threadCount);
         List<String> executionOrder = new ArrayList<>();
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
 
-        // 创建多个线程同时删除同一条记录
         for (int i = 0; i < threadCount; i++) {
             final int index = i;
             executorService.submit(() -> {
                 try {
-                    startLatch.await(); // 等待统一开始
+                    startLatch.await();
                     String threadName = Thread.currentThread().getName();
                     log.info("线程 {} 开始执行删除操作", threadName);
 
@@ -185,13 +180,12 @@ public class TransactionSyncTestClient {
                         .POST(HttpRequest.BodyPublishers.noBody())
                         .build();
 
-                    // 记录执行顺序
-                    executionOrder.add("Thread-" + index + " Start");
+                    executionOrder.add("线程-" + index + " 开始");
                     
                     HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
                     log.info("线程 {} 删除响应: {}", threadName, response.body());
                     
-                    executionOrder.add("Thread-" + index + " End");
+                    executionOrder.add("线程-" + index + " 结束");
                     
                     assertEquals(200, response.statusCode());
                 } catch (Exception e) {
@@ -202,23 +196,19 @@ public class TransactionSyncTestClient {
             });
         }
 
-        // 启动所有线程
         startLatch.countDown();
         
-        // 等待所有线程完成，因为每个操作5秒，所以总时间要长一些
         boolean allFinished = endLatch.await(60, TimeUnit.SECONDS);
         assertTrue(allFinished, "并发测试超时");
         
-        // 验证执行顺序
         log.info("执行顺序: {}", executionOrder);
         for (int i = 0; i < threadCount; i++) {
-            int startIndex = executionOrder.indexOf("Thread-" + i + " Start");
-            int endIndex = executionOrder.indexOf("Thread-" + i + " End");
+            int startIndex = executionOrder.indexOf("线程-" + i + " 开始");
+            int endIndex = executionOrder.indexOf("线程-" + i + " 结束");
             assertTrue(startIndex >= 0 && endIndex >= 0 && endIndex > startIndex,
                 "线程 " + i + " 的执行顺序不正确");
         }
         
-        // 验证记录确实被删除
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(BASE_URL + "/" + testTransaction.getId()))
             .GET()
