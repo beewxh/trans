@@ -22,6 +22,7 @@ public enum ErrorCode {
      */
     TRANSACTION_NOT_FOUND("100001", "交易订单未找到"),
     TRANSACTION_ALREADY_EXISTS("100002", "交易订单已存在", ErrorType.BUSINESS_ERROR, ErrorLevel.WARN),
+    TRANSACTION_NOT_CHANGED("100003", "更新操作时交易订单没有变更", ErrorType.BUSINESS_ERROR, ErrorLevel.WARN),
 
 
     ;

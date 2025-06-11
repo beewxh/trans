@@ -48,7 +48,7 @@ public class TransactionController {
 
     @GetMapping("/page")
     public ResponseEntity<CommonResponse<PageResult<Transaction>>> getTransactions(
-        @RequestParam(defaultValue = "1") int page,
+        @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(CommonResponse.succeed(transactionService.getTransactions(new PageRequest(page, size))));
     }

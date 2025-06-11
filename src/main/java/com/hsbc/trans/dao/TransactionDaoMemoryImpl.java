@@ -1,16 +1,16 @@
 package com.hsbc.trans.dao;
 
 import com.hsbc.common.errorhandler.exception.BusinessException;
+import com.hsbc.common.util.CopyBeanUtils;
+import com.hsbc.common.validation.ValidationUtils;
 import com.hsbc.trans.bean.Transaction;
 import com.hsbc.trans.enums.ErrorCode;
-import com.hsbc.common.validation.ValidationUtils;
 import com.hsbc.trans.vo.PageRequest;
 import com.hsbc.trans.vo.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -21,12 +21,13 @@ import java.util.stream.Collectors;
 @Repository
 public class TransactionDaoMemoryImpl implements TransactionDao {
 
-    private final Map<Long, Transaction> transactionStore = new ConcurrentSkipListMap<>();
+    private final TransactionStore store = new TransactionStore();
 
     private final Map<String, Long> transIdIndexMap = new ConcurrentHashMap<>();
 
     @Autowired
     private ValidationUtils validationUtils;
+
 
 
     @Override
@@ -37,77 +38,146 @@ public class TransactionDaoMemoryImpl implements TransactionDao {
             throw new BusinessException("Transaction already exists " + transaction.getTransId()).code(ErrorCode.TRANSACTION_ALREADY_EXISTS.getCode());
         }
         transIdIndexMap.put(transaction.getTransId(), transaction.getId());
-        transactionStore.put(transaction.getId(), transaction);
+        store.put(transaction.getId(), transaction);
         return transaction;
     }
 
     @Override
     public boolean existsByTransId(String transId) {
-        return transIdIndexMap.containsKey(transId) && transactionStore.containsKey(transIdIndexMap.get(transId));
+        return transIdIndexMap.containsKey(transId) && store.exists(transIdIndexMap.get(transId));
     }
 
     @Override
     public Optional<Transaction> queryById(Long id) {
-        return Optional.ofNullable(transactionStore.get(id));
+        return Optional.ofNullable(store.get(id));
     }
 
     @Override
     public Optional<Transaction> queryByTransId(String transId) {
-        return Optional.ofNullable(existsByTransId(transId) ? transactionStore.get(transIdIndexMap.get(transId)) : null);
+        return Optional.ofNullable(existsByTransId(transId) ? store.get(transIdIndexMap.get(transId)) : null);
     }
 
     @Override
     public List<Transaction> queryList() {
-        return new ArrayList<>(transactionStore.values());
+        return store.values();
     }
 
     @Override
     public PageResult<Transaction> queryPage(PageRequest pageRequest) {
-
-        List<Transaction> values = transactionStore.entrySet().stream()
-            .skip(pageRequest.getOffset() - 1)
-            .limit(pageRequest.getPageSize())
-            .map(Map.Entry::getValue)
-            .collect(Collectors.toList());
-
-        return new PageResult<>(values, transactionStore.size(), pageRequest);
+        List<Transaction> values = store.values(pageRequest.getOffset(), pageRequest.getPageSize());
+        return new PageResult<>(values, store.size(), pageRequest);
     }
 
 
     @Override
     public Transaction updateById(Transaction transaction) {
-        if (!existsById(transaction.getId())) {
+        if (!store.exists(transaction.getId())) {
             throw new BusinessException("Transaction not found with id: " + transaction.getId()).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode());
         }
-        Transaction origin = transactionStore.get(transaction.getId());
-        synchronized (origin) {
-            assign(origin, transaction);
-            transactionStore.put(transaction.getId(), transaction);
+        synchronized (store.getLockKey(transaction.getId())) {
+            if (store.exists(transaction.getId())) { // 锁记录后重新检查记录存在
+                Transaction origin = store.get(transaction.getId());
+                if (assign(origin, transaction)) {
+                    store.put(transaction.getId(), origin);
+                } else {
+                    throw new BusinessException("transaction not changed while updating, " + transaction.getId()).code(ErrorCode.TRANSACTION_NOT_CHANGED.getCode());
+                }
+            } else {
+                throw new BusinessException("while concurrent operating, transaction not found with id: " + transaction.getId()).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode());
+            }
         }
         return transaction;
     }
 
-    private void assign(Transaction origin, Transaction changed) {
-        origin.setStatus(changed.getStatus());
-        origin.setDescription(changed.getDescription());
-        origin.setUpdateTime(new Timestamp(System.currentTimeMillis()));
+    private boolean assign(Transaction origin, Transaction modified) {
+
+        boolean changed = false;
+        if (!origin.getStatus().equals(modified.getStatus())) {
+            origin.setStatus(modified.getStatus());
+            changed = true;
+        }
+        if (modified.getDescription() != null && !modified.getDescription().equals(origin.getDescription())) {
+            origin.setDescription(modified.getDescription());
+            changed = true;
+        }
+        if (changed) {
+            origin.setUpdateTime(new Timestamp(System.currentTimeMillis()));
+        }
+        return changed;
     }
 
 
     @Override
     public void deleteById(Long id) {
-        Transaction transaction = transactionStore.get(id);
-        if (transaction == null) {
+
+        if (!store.exists(id)) {
             throw new BusinessException("Transaction not found with id: " + id).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode());
         }
-        synchronized (transaction) {
-            transactionStore.remove(id);
-            transIdIndexMap.remove(transaction.getTransId());
+        synchronized (store.getLockKey(id)) {
+            if (store.exists(id)) { // 锁记录后重新检查记录存在
+                Transaction transaction = store.delete(id);
+                transIdIndexMap.remove(transaction.getTransId());
+            } else {
+                throw new BusinessException("while concurrent operating, transaction not found with id: " + id).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode());
+            }
         }
     }
 
-    @Override
-    public boolean existsById(Long id) {
-        return transactionStore.containsKey(id);
+
+
+    private static class TransactionStore {
+        private final Map<Long, Transaction> transactionStore = new ConcurrentSkipListMap<>();
+
+        private boolean exists(Long id) {
+            return transactionStore.containsKey(id);
+        }
+
+        private Transaction copy(Transaction from) {
+            if (from == null) {
+                return null;
+            }
+            Transaction to = new Transaction();
+            CopyBeanUtils.copyProperties(from, to);
+            return to;
+        }
+
+        private Transaction get(Long id) {
+            return copy(transactionStore.get(id));
+        }
+
+        private Transaction delete(Long id) {
+            return copy(transactionStore.remove(id));
+        }
+
+        private void put(Long id, Transaction transaction) {
+            transactionStore.put(id, copy(transaction));
+        }
+
+        private List<Transaction> values() {
+            return transactionStore.values().stream()
+                .map(this::copy)
+                .collect(Collectors.toList());
+        }
+
+        private List<Transaction> values(long from, int limit) {
+            return transactionStore.entrySet().stream()
+                .skip(from)
+                .limit(limit)
+                .map(Map.Entry::getValue)
+                .map(this::copy)
+                .collect(Collectors.toList());
+        }
+
+        private long size() {
+            return transactionStore.size();
+        }
+
+        private Long getLockKey(Long id) {
+            if (transactionStore.containsKey(id)) {
+                return transactionStore.get(id).getId();
+            }
+            throw new BusinessException("Transaction not found with id: " + id).code(ErrorCode.SYSTEM_ERROR.getCode());
+        }
+
     }
 }

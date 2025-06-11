@@ -23,8 +23,6 @@ public interface TransactionDao {
 
     void deleteById(Long id);
 
-    boolean existsById(Long id);
-
     boolean existsByTransId(String transId);
 
 }
