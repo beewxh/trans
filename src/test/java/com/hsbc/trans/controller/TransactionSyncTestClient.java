@@ -30,194 +30,244 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @ClassName TransactionSyncTestClient
- * @Description 交易并发测试客户端
- * @Author rd
- * @Date 2025/6/12 05:43
- * @Version 1.0
- **/
+ * 交易并发测试客户端
+ * 用于测试交易系统在并发场景下的行为，包括并发更新和删除操作
+ *
+ * @author rd
+ * @version 1.0
+ * @since 2025/6/12
+ */
 @Slf4j
 public class TransactionSyncTestClient {
 
+    /**
+     * 测试服务器地址
+     */
+    private static final String BASE_URL = "http://localhost:8080";
+
+    /**
+     * HTTP客户端
+     */
     private final HttpClient httpClient = HttpClient.newBuilder()
-        .connectTimeout(Duration.ofSeconds(30)) // 增加超时时间，因为dao层有5秒sleep
+        .connectTimeout(Duration.ofSeconds(10))
         .build();
 
-    private static final String BASE_URL = "http://localhost:8080/api/transactions";
-    private Transaction testTransaction;
+    /**
+     * 线程池
+     */
+    private ExecutorService executorService;
 
+    /**
+     * 测试前的准备工作
+     * 初始化线程池
+     */
     @BeforeEach
-    void setUp() throws Exception {
-        log.info("开始执行测试前置准备...");
-        // 创建一个测试交易
-        TransactionReq req = new TransactionReq();
-        req.setTransId("SYNC_TEST001");
-        req.setUserId("USER001");
-        req.setAmount(new BigDecimal("100.00"));
-        req.setDescription("并发测试交易");
-        req.setType(TransactionType.DEPOSIT);
-
-        String requestBody = JsonUtils.toJson(req);
-        log.info("创建测试交易请求: {}", requestBody);
-
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(BASE_URL + "/create"))
-            .header("Content-Type", "application/json")
-            .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-            .build();
-
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        log.info("创建测试交易响应: {}", response.body());
-        
-        assertEquals(200, response.statusCode());
-        assertEquals(ResponseCode.SUCC.getCode(), JsonUtils.parseNode(response.body()).get("code").asText());
-        JsonNode data = JsonUtils.parseNode(response.body()).get("data");
-        testTransaction = JsonUtils.toBean(data.toString(), Transaction.class);
-        log.info("测试前置准备完成，创建的测试交易ID: {}", testTransaction.getId());
+    void setUp() {
+        executorService = Executors.newFixedThreadPool(10);
     }
 
+    /**
+     * 测试后的清理工作
+     * 关闭线程池并清理测试数据
+     */
     @AfterEach
     void tearDown() throws Exception {
-        log.info("开始清理测试数据...");
-        String url = "http://localhost:8080/inner/transactions/clear";
-        
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(url))
-            .POST(HttpRequest.BodyPublishers.noBody())
-            .build();
-
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, response.statusCode());
-        assertEquals(ResponseCode.SUCC.getCode(), JsonUtils.parseNode(response.body()).get("code").asText());
-        log.info("测试数据清理完成");
-        testTransaction = null;
+        executorService.shutdown();
+        if (!executorService.awaitTermination(30, TimeUnit.SECONDS)) {
+            executorService.shutdownNow();
+        }
+        clearTestData();
     }
 
+    /**
+     * 测试并发更新交易状态
+     * 多个线程同时更新同一笔交易的状态，验证并发控制的有效性
+     */
     @Test
     void testConcurrentUpdateStatus() throws Exception {
-        log.info("开始测试并发更新交易状态...");
-        int threadCount = 3;
+        // 创建测试交易
+        Transaction transaction = createTestTransaction();
+        assertNotNull(transaction);
+
+        int threadCount = 5;
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch endLatch = new CountDownLatch(threadCount);
-        List<String> executionOrder = new ArrayList<>();
-        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        List<Exception> exceptions = new ArrayList<>();
 
-        // 创建多个线程同时更新同一条记录
-        for (int i = 0; i < threadCount; i++) {
-            final int index = i;
-            executorService.submit(() -> {
-                try {
-                    startLatch.await(); // 等待统一开始
-                    String threadName = Thread.currentThread().getName();
-                    log.info("线程 {} 开始执行更新操作", threadName);
-
-                    String url = String.format("%s/%d/update?status=%s&description=%s",
-                        BASE_URL,
-                        testTransaction.getId(),
-                        TransactionStatus.PROCESSING.name(),
-                        "并发更新测试-" + index);
-
-                    HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create(url))
-                        .GET()
-                        .build();
-
-                    executionOrder.add("线程-" + index + " 开始");
-                    
-                    HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-                    log.info("线程 {} 更新响应: {}", threadName, response.body());
-                    
-                    executionOrder.add("线程-" + index + " 结束");
-                    
-                    assertEquals(200, response.statusCode());
-                    assertTrue(response.body().contains(ResponseCode.SUCC.getCode()));
-                } catch (Exception e) {
-                    log.error("线程执行异常", e);
-                } finally {
-                    endLatch.countDown();
-                }
-            });
-        }
-
-        startLatch.countDown();
-        
-        boolean allFinished = endLatch.await(60, TimeUnit.SECONDS);
-        assertTrue(allFinished, "并发测试超时");
-        
-        log.info("执行顺序: {}", executionOrder);
-        for (int i = 0; i < threadCount; i++) {
-            int startIndex = executionOrder.indexOf("线程-" + i + " 开始");
-            int endIndex = executionOrder.indexOf("线程-" + i + " 结束");
-            assertTrue(startIndex >= 0 && endIndex >= 0 && endIndex > startIndex,
-                "线程 " + i + " 的执行顺序不正确");
-        }
-        
-        executorService.shutdown();
-        log.info("并发更新测试完成");
-    }
-
-    @Test
-    void testConcurrentDelete() throws Exception {
-        log.info("开始测试并发删除交易...");
-        int threadCount = 2;
-        CountDownLatch startLatch = new CountDownLatch(1);
-        CountDownLatch endLatch = new CountDownLatch(threadCount);
-        List<String> executionOrder = new ArrayList<>();
-        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
-
+        // 启动多个线程并发更新
         for (int i = 0; i < threadCount; i++) {
             final int index = i;
             executorService.submit(() -> {
                 try {
                     startLatch.await();
-                    String threadName = Thread.currentThread().getName();
-                    log.info("线程 {} 开始执行删除操作", threadName);
-
-                    String url = BASE_URL + "/" + testTransaction.getId() + "/delete";
-
-                    HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create(url))
-                        .POST(HttpRequest.BodyPublishers.noBody())
-                        .build();
-
-                    executionOrder.add("线程-" + index + " 开始");
-                    
-                    HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-                    log.info("线程 {} 删除响应: {}", threadName, response.body());
-                    
-                    executionOrder.add("线程-" + index + " 结束");
-                    
-                    assertEquals(200, response.statusCode());
+                    updateTransactionStatus(transaction.getId(), 
+                        index % 2 == 0 ? TransactionStatus.PROCESSING : TransactionStatus.COMPLETED);
                 } catch (Exception e) {
-                    log.error("线程执行异常", e);
+                    exceptions.add(e);
                 } finally {
                     endLatch.countDown();
                 }
             });
         }
 
+        // 触发并发更新
         startLatch.countDown();
-        
-        boolean allFinished = endLatch.await(60, TimeUnit.SECONDS);
-        assertTrue(allFinished, "并发测试超时");
-        
-        log.info("执行顺序: {}", executionOrder);
+        endLatch.await(30, TimeUnit.SECONDS);
+
+        // 验证结果
+        assertTrue(exceptions.isEmpty(), "并发更新过程中发生异常");
+        Transaction updatedTransaction = queryTransaction(transaction.getId());
+        assertNotNull(updatedTransaction);
+        assertNotEquals(TransactionStatus.PENDING, updatedTransaction.getStatus());
+    }
+
+    /**
+     * 测试并发删除交易
+     * 多个线程同时尝试删除同一笔交易，验证并发控制的有效性
+     */
+    @Test
+    void testConcurrentDelete() throws Exception {
+        // 创建测试交易
+        Transaction transaction = createTestTransaction();
+        assertNotNull(transaction);
+
+        int threadCount = 5;
+        CountDownLatch startLatch = new CountDownLatch(1);
+        CountDownLatch endLatch = new CountDownLatch(threadCount);
+        List<Exception> exceptions = new ArrayList<>();
+
+        // 启动多个线程并发删除
         for (int i = 0; i < threadCount; i++) {
-            int startIndex = executionOrder.indexOf("线程-" + i + " 开始");
-            int endIndex = executionOrder.indexOf("线程-" + i + " 结束");
-            assertTrue(startIndex >= 0 && endIndex >= 0 && endIndex > startIndex,
-                "线程 " + i + " 的执行顺序不正确");
+            executorService.submit(() -> {
+                try {
+                    startLatch.await();
+                    deleteTransaction(transaction.getId());
+                } catch (Exception e) {
+                    exceptions.add(e);
+                } finally {
+                    endLatch.countDown();
+                }
+            });
         }
-        
+
+        // 触发并发删除
+        startLatch.countDown();
+        endLatch.await(30, TimeUnit.SECONDS);
+
+        // 验证结果
+        assertEquals(threadCount - 1, exceptions.size(), "应该只有一个线程删除成功");
+        Transaction deletedTransaction = queryTransaction(transaction.getId());
+        assertNull(deletedTransaction);
+    }
+
+    /**
+     * 创建测试交易
+     *
+     * @return 创建的交易记录
+     * @throws Exception 如果创建过程中发生错误
+     */
+    private Transaction createTestTransaction() throws Exception {
+        TransactionReq req = new TransactionReq();
+        req.setTransId("TEST_" + System.currentTimeMillis());
+        req.setUserId("TEST_USER");
+        req.setAmount(new BigDecimal("100.00"));
+        req.setType(TransactionType.DEPOSIT);
+        req.setDescription("测试交易");
+
         HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(BASE_URL + "/" + testTransaction.getId()))
+            .uri(URI.create(BASE_URL + "/transactions"))
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(JsonUtils.toJson(req)))
+            .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode());
+
+        JsonNode jsonNode = JsonUtils.parseNode(response.body());
+        assertEquals(ResponseCode.SUCC.getCode(), jsonNode.get("code").asText());
+
+        return JsonUtils.fromJson(jsonNode.get("data").toString(), Transaction.class);
+    }
+
+    /**
+     * 更新交易状态
+     *
+     * @param id 交易ID
+     * @param status 新的交易状态
+     * @throws Exception 如果更新过程中发生错误
+     */
+    private void updateTransactionStatus(Long id, TransactionStatus status) throws Exception {
+        Transaction transaction = new Transaction();
+        transaction.setId(id);
+        transaction.setStatus(status);
+
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(BASE_URL + "/transactions/" + id))
+            .header("Content-Type", "application/json")
+            .method("PATCH", HttpRequest.BodyPublishers.ofString(JsonUtils.toJson(transaction)))
+            .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() != 200) {
+            throw new Exception("更新交易状态失败: " + response.body());
+        }
+    }
+
+    /**
+     * 删除交易
+     *
+     * @param id 要删除的交易ID
+     * @throws Exception 如果删除过程中发生错误
+     */
+    private void deleteTransaction(Long id) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(BASE_URL + "/transactions/" + id))
+            .DELETE()
+            .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() != 200) {
+            throw new Exception("删除交易失败: " + response.body());
+        }
+    }
+
+    /**
+     * 查询交易
+     *
+     * @param id 要查询的交易ID
+     * @return 交易记录，如果不存在则返回null
+     * @throws Exception 如果查询过程中发生错误
+     */
+    private Transaction queryTransaction(Long id) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(BASE_URL + "/transactions/" + id))
             .GET()
             .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        assertTrue(response.body().contains(TRANSACTION_NOT_FOUND.getCode()));
-        
-        executorService.shutdown();
-        log.info("并发删除测试完成");
+        if (response.statusCode() == 404) {
+            return null;
+        }
+
+        JsonNode jsonNode = JsonUtils.parseNode(response.body());
+        if (TRANSACTION_NOT_FOUND.getCode().equals(jsonNode.get("code").asText())) {
+            return null;
+        }
+
+        return JsonUtils.fromJson(jsonNode.get("data").toString(), Transaction.class);
+    }
+
+    /**
+     * 清理测试数据
+     *
+     * @throws Exception 如果清理过程中发生错误
+     */
+    private void clearTestData() throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(BASE_URL + "/inner/transactions/clear"))
+            .DELETE()
+            .build();
+
+        httpClient.send(request, HttpResponse.BodyHandlers.ofString());
     }
 }

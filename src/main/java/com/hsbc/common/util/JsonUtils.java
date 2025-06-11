@@ -14,16 +14,25 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * JSON工具类，提供JSON和Java对象之间的转换
+ * JSON工具类
+ * 提供基于Jackson的JSON序列化和反序列化功能
+ *
+ * @author rd
+ * @version 1.0
+ * @since 2025/6/12
  */
 public class JsonUtils {
+    /**
+     * Jackson的ObjectMapper实例，用于JSON操作
+     */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     /**
      * 将对象转换为JSON字符串
      *
-     * @param obj 任意对象
-     * @return JSON字符串
+     * @param obj 要转换的对象
+     * @return JSON字符串，如果对象为null则返回null
+     * @throws FrameworkException 如果转换过程中发生错误
      */
     public static String toJson(Object obj) {
         if (obj == null) {
@@ -37,11 +46,13 @@ public class JsonUtils {
     }
 
     /**
-     * 将JSON字符串转换为对象
+     * 将JSON字符串转换为指定类型的对象
      *
-     * @param json  JSON字符串
+     * @param json JSON字符串
      * @param clazz 目标类型
-     * @return 转换后的对象
+     * @return 转换后的对象，如果JSON字符串为空则返回null
+     * @throws FrameworkException 如果转换过程中发生错误
+     * @param <T> 目标类型
      */
     public static <T> T toBean(String json, Class<T> clazz) {
         if (!StringUtils.hasText(json)) {
@@ -55,11 +66,13 @@ public class JsonUtils {
     }
 
     /**
-     * 将JSON字符串转换为对象（支持泛型）
+     * 将JSON字符串转换为指定类型的对象（支持泛型）
      *
      * @param json JSON字符串
      * @param typeReference 类型引用
-     * @return 转换后的对象
+     * @return 转换后的对象，如果JSON字符串为空则返回null
+     * @throws FrameworkException 如果转换过程中发生错误
+     * @param <T> 目标类型
      */
     public static <T> T fromJson(String json, TypeReference<T> typeReference) {
         if (!StringUtils.hasText(json)) {
@@ -73,18 +86,19 @@ public class JsonUtils {
     }
 
     /**
-     * 将JSON字符串转换为对象
+     * 将JSON字符串转换为指定类型的对象
      *
      * @param json JSON字符串
      * @param clazz 目标类型
      * @return 转换后的对象
+     * @param <T> 目标类型
      */
     public static <T> T fromJson(String json, Class<T> clazz) {
         return toBean(json, clazz);
     }
 
     /**
-     * 将JSON字符串转换为Map
+     * 将JSON字符串转换为Map对象
      *
      * @param json JSON字符串
      * @return Map对象
@@ -94,12 +108,15 @@ public class JsonUtils {
     }
 
     /**
-     * 将JSON字符串转换为指定类型的Map
+     * 将JSON字符串转换为指定类型的Map对象
      *
-     * @param json       JSON字符串
-     * @param keyClass   Map的key类型
+     * @param json JSON字符串
+     * @param keyClass Map的key类型
      * @param valueClass Map的value类型
-     * @return Map对象
+     * @return Map对象，如果JSON字符串为空则返回null
+     * @throws FrameworkException 如果转换过程中发生错误
+     * @param <K> Map的key类型
+     * @param <V> Map的value类型
      */
     public static <K, V> Map<K, V> toMap(String json, Class<K> keyClass, Class<V> valueClass) {
         if (!StringUtils.hasText(json)) {
@@ -114,11 +131,13 @@ public class JsonUtils {
     }
 
     /**
-     * 将JSON字符串转换为List
+     * 将JSON字符串转换为指定类型的List对象
      *
-     * @param json         JSON字符串
+     * @param json JSON字符串
      * @param elementClass List元素类型
-     * @return List对象
+     * @return List对象，如果JSON字符串为空则返回空List
+     * @throws FrameworkException 如果转换过程中发生错误
+     * @param <T> List元素类型
      */
     public static <T> List<T> toList(String json, Class<T> elementClass) {
         if (!StringUtils.hasText(json)) {
@@ -137,6 +156,7 @@ public class JsonUtils {
      *
      * @param json JSON字符串
      * @return JsonNode对象
+     * @throws FrameworkException 如果转换过程中发生错误
      */
     public static JsonNode parseNode(String json) {
         try {

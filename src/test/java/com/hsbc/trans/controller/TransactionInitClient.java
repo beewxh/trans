@@ -18,17 +18,24 @@ import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @ClassName TransactionInitClient
- * @Description TODO
- * @Author rd
- * @Date 2025/6/11 21:22
- * @Version 1.0
- **/
+ * 交易数据初始化客户端
+ * 用于生成测试数据，通过HTTP接口批量创建随机交易记录
+ *
+ * @author rd
+ * @version 1.0
+ * @since 2025/6/12
+ */
 @Slf4j
 public class TransactionInitClient {
     private static final Random RANDOM = new Random();
     private static final List<TransactionType> TYPES = List.of(TransactionType.values());
 
+    /**
+     * 主方法
+     * 创建10个随机交易记录用于测试
+     *
+     * @param args 命令行参数（未使用）
+     */
     public static void main(String[] args) {
         // 1. 创建HttpClient
         HttpClient client = HttpClient.newBuilder()
@@ -67,6 +74,12 @@ public class TransactionInitClient {
 
     }
 
+    /**
+     * 创建随机交易请求对象
+     *
+     * @param index 交易序号，用于生成唯一的交易ID
+     * @return 随机生成的交易请求对象
+     */
     private static TransactionReq createRandomTransaction(int index) {
         TransactionReq req = new TransactionReq();
         req.setTransId(String.format("TX%d_%d", System.currentTimeMillis(), index));
@@ -77,16 +90,33 @@ public class TransactionInitClient {
         return req;
     }
 
+    /**
+     * 生成随机交易金额
+     * 生成100-10000之间的随机金额，保留2位小数
+     *
+     * @return 随机生成的交易金额
+     */
     private static BigDecimal randomAmount() {
         // 生成100-10000之间的随机金额，保留2位小数
         return BigDecimal.valueOf(RANDOM.nextDouble() * 9900 + 100)
             .setScale(2, BigDecimal.ROUND_HALF_UP);
     }
 
+    /**
+     * 随机选择交易类型
+     *
+     * @return 随机选择的交易类型
+     */
     private static TransactionType randomTransactionType() {
         return TYPES.get(RANDOM.nextInt(TYPES.size()));
     }
 
+    /**
+     * 生成交易描述
+     *
+     * @param index 交易序号
+     * @return 生成的交易描述
+     */
     private static String generateDescription(int index) {
         return String.format("测试交易-%d-%s", index + 1,
             randomTransactionType().getDescription());

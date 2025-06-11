@@ -12,19 +12,29 @@ import java.util.stream.Collectors;
 
 /**
  * Bean属性拷贝工具类
+ * 提供基于反射的对象属性拷贝功能，支持深层属性拷贝和类型转换
+ *
+ * @author rd
+ * @version 1.0
+ * @since 2025/6/12
  */
 @Slf4j
 public class CopyBeanUtils {
-    // 缓存类的字段信息，提高性能
+    /**
+     * 缓存类的字段信息，提高性能
+     */
     private static final Map<Class<?>, List<Field>> FIELDS_CACHE = new ConcurrentHashMap<>();
 
     /**
-     * 将source对象的属性拷贝到destination对象
+     * 将源对象的属性拷贝到目标对象
+     * 只拷贝名称和类型都匹配的字段
      *
      * @param source 源对象
      * @param destination 目标对象
+     * @param <S> 源对象类型
+     * @param <D> 目标对象类型
      */
-    public static void copyProperties(Object source, Object destination) {
+    public static <S, D> void copyProperties(S source, D destination) {
         if (source == null || destination == null) {
             return;
         }
@@ -44,6 +54,9 @@ public class CopyBeanUtils {
 
     /**
      * 获取类的所有字段（包括父类字段），并缓存结果
+     *
+     * @param clazz 要获取字段的类
+     * @return 类的所有字段列表
      */
     private static List<Field> getFields(Class<?> clazz) {
         return FIELDS_CACHE.computeIfAbsent(clazz, k -> {
@@ -68,6 +81,10 @@ public class CopyBeanUtils {
 
     /**
      * 判断两个字段是否匹配（名称和类型都相同）
+     *
+     * @param sourceField 源字段
+     * @param destField 目标字段
+     * @return 如果字段匹配返回true，否则返回false
      */
     private static boolean isFieldMatch(Field sourceField, Field destField) {
         return sourceField.getName().equals(destField.getName()) &&
@@ -76,6 +93,11 @@ public class CopyBeanUtils {
 
     /**
      * 复制字段值
+     *
+     * @param source 源对象
+     * @param destination 目标对象
+     * @param sourceField 源字段
+     * @param destField 目标字段
      */
     private static void copyFieldValue(Object source, Object destination, Field sourceField, Field destField) {
         try {
@@ -84,7 +106,7 @@ public class CopyBeanUtils {
             Object value = sourceField.get(source);
             destField.set(destination, value);
         } catch (Exception e) {
-            log.warn("Failed to copy field value: {} -> {}", sourceField.getName(), destField.getName(), e);
+            log.warn("复制字段值失败: {} -> {}", sourceField.getName(), destField.getName(), e);
         }
     }
 

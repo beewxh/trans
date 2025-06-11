@@ -18,6 +18,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.stream.Collectors;
 
+/**
+ * 交易数据访问层内存实现
+ * 提供基于内存存储的交易数据访问实现，支持并发访问
+ *
+ * @author rd
+ * @version 1.0
+ * @since 2025/6/12
+ */
 @Repository
 public class TransactionDaoMemoryImpl implements TransactionDao {
 
@@ -133,6 +141,10 @@ public class TransactionDaoMemoryImpl implements TransactionDao {
 
 
 
+    /**
+     * 内部存储类
+     * 提供线程安全的交易数据存储实现
+     */
     private static class TransactionStore {
         private final Map<Long, Transaction> transactionStore = new ConcurrentSkipListMap<>();
 

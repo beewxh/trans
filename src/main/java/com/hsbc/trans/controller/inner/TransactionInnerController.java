@@ -13,19 +13,28 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * @ClassName TransactionInnerController
- * @Description 交易内部控制器，内部数据管理
- * @Author rd
- * @Date 2025/6/12 06:00
- * @Version 1.0
- **/
+ * 交易内部控制器
+ * 提供内部数据管理功能，主要用于测试环境的数据维护
+ *
+ * @author rd
+ * @version 1.0
+ * @since 2025/6/12
+ */
 @Slf4j
 @RestController
 @RequestMapping("/inner/transactions")
 public class TransactionInnerController {
 
+    /**
+     * 交易服务
+     */
     private final TransactionService transactionService;
 
+    /**
+     * 构造函数
+     *
+     * @param transactionService 交易服务
+     */
     @Autowired
     public TransactionInnerController(TransactionService transactionService) {
         this.transactionService = transactionService;
@@ -33,9 +42,9 @@ public class TransactionInnerController {
 
     /**
      * 清空所有交易数据
-     * 此接口仅用于测试环境
+     * 此接口仅用于测试环境，用于清理测试数据
      *
-     * @return
+     * @return ResponseEntity 包含清理操作的响应结果
      */
     @PostMapping("/clear")
     public ResponseEntity<CommonResponse<Void>> clearAllTransactions() {

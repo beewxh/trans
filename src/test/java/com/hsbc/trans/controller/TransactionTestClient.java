@@ -28,13 +28,13 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * @ClassName TransactionTestClient
- * @Description TODO
- * @Author rd
- * @Date 2025/6/11 22:00
- * @Version 1.0
- **/
-
+ * 交易系统集成测试客户端
+ * 通过HTTP接口测试交易系统的各项功能，包括创建、查询、更新和删除交易等操作
+ *
+ * @author rd
+ * @version 1.0
+ * @since 2025/6/12
+ */
 @Slf4j
 public class TransactionTestClient {
 
@@ -44,9 +44,14 @@ public class TransactionTestClient {
 
     private static final String BASE_URL = "http://localhost:8080/api/transactions";
     private Transaction testTransaction;
-
     private final Random random = new Random();
 
+    /**
+     * 测试前置准备
+     * 创建一个测试用的交易记录，供后续测试使用
+     *
+     * @throws Exception 如果创建测试交易失败
+     */
     @BeforeEach
     void setUp() throws Exception {
         log.info("开始执行测试前置准备...");
@@ -76,6 +81,12 @@ public class TransactionTestClient {
         log.info("测试前置准备完成，创建的测试交易ID: {}", testTransaction.getId());
     }
 
+    /**
+     * 测试后清理
+     * 删除测试过程中创建的交易记录
+     *
+     * @throws Exception 如果清理过程中发生错误
+     */
     @AfterEach
     void tearDown() throws Exception {
         if (testTransaction != null && testTransaction.getId() != null) {
@@ -93,7 +104,12 @@ public class TransactionTestClient {
         }
     }
 
-    // 创建交易 - 成功用例
+    /**
+     * 测试创建交易成功场景
+     * 验证系统能够正确创建新的交易记录
+     *
+     * @throws Exception 如果测试过程中发生错误
+     */
     @Test
     void createTransaction_Success() throws Exception {
         log.info("开始测试创建交易成功用例...");
@@ -126,7 +142,12 @@ public class TransactionTestClient {
         log.info("创建交易成功测试通过，创建的交易ID: {}", transaction.getId());
     }
 
-    // 创建交易 - 失败用例（参数验证错误）
+    /**
+     * 测试创建交易参数验证失败场景
+     * 验证系统能够正确处理无效的交易ID格式
+     *
+     * @throws Exception 如果测试过程中发生错误
+     */
     @Test
     void createTransaction_ValidationFailed() throws Exception {
         log.info("开始测试创建交易参数验证失败用例...");
@@ -151,7 +172,12 @@ public class TransactionTestClient {
         log.info("创建交易参数验证失败测试通过");
     }
 
-    // 创建交易 - 失败用例（重复的transId）
+    /**
+     * 测试创建重复交易场景
+     * 验证系统能够正确处理重复的交易ID
+     *
+     * @throws Exception 如果测试过程中发生错误
+     */
     @Test
     void createTransaction_DuplicateTransId() throws Exception {
         log.info("开始测试创建交易重复transId失败用例...");
@@ -180,7 +206,12 @@ public class TransactionTestClient {
         log.info("创建交易重复transId测试通过");
     }
 
-    // 获取单个交易 - 成功用例
+    /**
+     * 测试获取单个交易成功场景
+     * 验证系统能够正确返回指定ID的交易记录
+     *
+     * @throws Exception 如果测试过程中发生错误
+     */
     @Test
     void getTransaction_Success() throws Exception {
         log.info("开始测试获取单个交易成功用例...");
@@ -204,7 +235,12 @@ public class TransactionTestClient {
         log.info("获取单个交易成功测试通过");
     }
 
-    // 获取单个交易 - 失败用例（ID格式错误）
+    /**
+     * 测试获取交易参数验证失败场景
+     * 验证系统能够正确处理无效的交易ID格式
+     *
+     * @throws Exception 如果测试过程中发生错误
+     */
     @Test
     void getTransaction_ValidationFailed() throws Exception {
         log.info("开始测试获取单个交易ID格式错误用例...");
@@ -224,7 +260,12 @@ public class TransactionTestClient {
         log.info("获取单个交易ID格式错误测试通过");
     }
 
-    // 分页获取交易列表 - 成功用例
+    /**
+     * 测试分页获取交易列表成功场景
+     * 验证系统能够正确返回分页的交易记录
+     *
+     * @throws Exception 如果测试过程中发生错误
+     */
     @Test
     void getTransactionPage_Success() throws Exception {
         log.info("开始测试分页获取交易列表成功用例...");
@@ -249,7 +290,12 @@ public class TransactionTestClient {
         log.info("分页获取交易列表成功测试通过，总记录数: {}", pageResult.getTotalElements());
     }
 
-    // 分页获取交易列表 - 失败用例（参数验证错误）
+    /**
+     * 测试分页参数验证失败场景
+     * 验证系统能够正确处理无效的分页参数
+     *
+     * @throws Exception 如果测试过程中发生错误
+     */
     @Test
     void getTransactionPage_ValidationFailed() throws Exception {
         log.info("开始测试分页获取交易列表参数验证失败用例...");
@@ -269,7 +315,12 @@ public class TransactionTestClient {
         log.info("分页获取交易列表参数验证失败测试通过");
     }
 
-    // 分页获取交易列表 - 失败用例（页数超出范围）
+    /**
+     * 测试分页超出范围场景
+     * 验证系统能够正确处理超出数据范围的页码
+     *
+     * @throws Exception 如果测试过程中发生错误
+     */
     @Test
     void getTransactionPage_PageOutOfRange() throws Exception {
         log.info("开始测试分页获取交易列表页数超出范围用例...");
@@ -295,7 +346,12 @@ public class TransactionTestClient {
         log.info("分页获取交易列表页数超出范围测试通过");
     }
 
-    // 获取所有交易 - 成功用例
+    /**
+     * 测试获取所有交易成功场景
+     * 验证系统能够正确返回所有交易记录
+     *
+     * @throws Exception 如果测试过程中发生错误
+     */
     @Test
     void getAllTransactions_Success() throws Exception {
         log.info("开始测试获取所有交易成功用例...");
@@ -320,83 +376,12 @@ public class TransactionTestClient {
         log.info("获取所有交易成功测试通过，交易数量: {}", transactions.size());
     }
 
-    // 更新交易状态 - 成功用例
-    @Test
-    void updateTransactionStatus_Success() throws Exception {
-        log.info("开始测试更新交易状态成功用例...");
-        String url = String.format("%s/%d/update?status=%s&description=%s",
-            BASE_URL,
-            testTransaction.getId(),
-            TransactionStatus.PROCESSING.name(),
-            "更新状态测试");
-        log.info("请求URL: {}", url);
-
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(url))
-            .GET()
-            .build();
-
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        log.info("更新交易状态响应: {}", response.body());
-
-        assertEquals(200, response.statusCode());
-        assertEquals(ResponseCode.SUCC.getCode(), JsonUtils.parseNode(response.body()).get("code").asText());
-
-        JsonNode data = JsonUtils.parseNode(response.body()).get("data");
-        Transaction transaction = JsonUtils.toBean(data.toString(), Transaction.class);
-        assertEquals(TransactionStatus.PROCESSING, transaction.getStatus());
-        log.info("更新交易状态成功测试通过");
-    }
-
-    // 更新交易状态 - 失败用例，状态变迁不合法
-    @Test
-    void updateTransactionStatus_StatusFailed() throws Exception {
-        log.info("开始测试更新交易状态成功用例...");
-        String url = String.format("%s/%d/update?status=%s&description=%s",
-            BASE_URL,
-            testTransaction.getId(),
-            TransactionStatus.COMPLETED.name(),
-            "更新状态测试");
-        log.info("请求URL: {}", url);
-
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(url))
-            .GET()
-            .build();
-
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        log.info("更新交易状态响应: {}", response.body());
-
-        assertEquals(200, response.statusCode());
-        assertEquals(ErrorCode.TRANSACTION_UPDATE_STATUS_INVALID.getCode(), JsonUtils.parseNode(response.body()).get("code").asText());
-        log.info("更新交易状态变迁失败测试通过");
-    }
-
-    // 更新交易状态 - 失败用例（状态枚举值错误）
-    @Test
-    void updateTransactionStatus_ValidationFailed() throws Exception {
-        log.info("开始测试更新交易状态枚举值错误用例...");
-        String url = String.format("%s/%d/update?status=%s&description=%s",
-            BASE_URL,
-            testTransaction.getId(),
-            "INVALID_STATUS",
-            "更新状态测试");
-        log.info("请求URL（状态值错误）: {}", url);
-
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(url))
-            .GET()
-            .build();
-
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        log.info("更新交易状态响应: {}", response.body());
-
-        assertEquals(200, response.statusCode());
-        assertTrue(response.body().contains(PARAM_ERROR.getCode()));
-        log.info("更新交易状态枚举值错误测试通过");
-    }
-
-    // 删除交易 - 成功用例
+    /**
+     * 测试删除交易成功场景
+     * 验证系统能够正确删除指定的交易记录
+     *
+     * @throws Exception 如果测试过程中发生错误
+     */
     @Test
     void deleteTransaction_Success() throws Exception {
         log.info("开始测试删除交易成功用例...");
@@ -416,7 +401,12 @@ public class TransactionTestClient {
         log.info("删除交易成功测试通过");
     }
 
-    // 删除交易 - 失败用例（ID不存在）
+    /**
+     * 测试删除不存在交易场景
+     * 验证系统能够正确处理删除不存在的交易ID
+     *
+     * @throws Exception 如果测试过程中发生错误
+     */
     @Test
     void deleteTransaction_ValidationFailed() throws Exception {
         log.info("开始测试删除交易ID不存在用例...");

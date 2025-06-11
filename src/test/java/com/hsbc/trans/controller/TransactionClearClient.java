@@ -12,18 +12,23 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 
 /**
- * @ClassName TransactionClearClient
- * @Description TODO
- * @Author rd
- * @Date 2025/6/12 06:03
- * @Version 1.0
- **/
+ * 交易数据清理客户端
+ * 用于清理测试数据，通过调用内部接口删除所有交易记录
+ *
+ * @author rd
+ * @version 1.0
+ * @since 2025/6/12
+ */
 @Slf4j
 public class TransactionClearClient {
 
-
+    /**
+     * 主方法
+     * 调用内部接口清理所有交易数据
+     *
+     * @param args 命令行参数（未使用）
+     */
     public static void main(String[] args) {
-
         try {
             log.info("开始清理测试数据...");
             String url = "http://localhost:8080/inner/transactions/clear";
