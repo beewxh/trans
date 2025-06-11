@@ -1,0 +1,21 @@
+server:
+  port: 80
+  tomcat:
+    max-threads: 200
+    min-spare-threads: 20
+
+logging:
+  level:
+    com.hsbc.trans: WARN
+    org.springframework: WARN
+  file:
+    name: logs/application-prod.log
+    max-size: 100MB
+    max-history: 30
+
+# 缓存配置
+spring:
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=2000,expireAfterAccess=3600s 

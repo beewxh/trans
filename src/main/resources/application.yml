@@ -1,0 +1,28 @@
+server:
+    port: 8080
+
+spring:
+    application:
+        name: trans
+    profiles:
+        active: local
+    cache:
+        type: caffeine
+        caffeine:
+            spec: maximumSize=500,expireAfterAccess=600s
+    jpa:
+        open-in-view: false
+        properties:
+            hibernate:
+                jdbc:
+                    time_zone: GMT+8
+
+logging:
+    level:
+        com.hsbc.trans: DEBUG
+    pattern:
+        console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+snowflake:
+    datacenter-id: 1  # 数据中心ID（0-31）
+    worker-id: 1      # 工作机器ID（0-31）

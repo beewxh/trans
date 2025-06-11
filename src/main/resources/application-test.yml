@@ -1,0 +1,17 @@
+server:
+  port: 8081
+
+logging:
+  level:
+    com.hsbc.trans: INFO
+  file:
+    name: logs/application-test.log
+    max-size: 10MB
+    max-history: 7
+
+# 缓存配置
+spring:
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=1000,expireAfterAccess=1800s 

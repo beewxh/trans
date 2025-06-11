@@ -1,4 +1,4 @@
-package com.hsbc.transdemo;
+package com.hsbc.trans;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
