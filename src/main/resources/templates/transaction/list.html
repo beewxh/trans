@@ -104,7 +104,7 @@
                         alert('Status updated successfully!');
                         location.reload();
                     } else {
-                        alert(`[${data.code}][${data.type}] ${data.message}`);
+                        alert(`[${data.error.code}][${data.error.type}] ${data.error.message}`);
                     }
                 })
                 .catch(error => {
