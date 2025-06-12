@@ -4,9 +4,9 @@ import lombok.Getter;
 
 @Getter
 public enum TransactionType {
-    DEPOSIT("存款"),
-    WITHDRAWAL("取款"),
-    TRANSFER("转账");
+    DEPOSIT("Deposit"),
+    WITHDRAWAL("Withdrawal"),
+    TRANSFER("Transfer");
 
     private final String description;
 

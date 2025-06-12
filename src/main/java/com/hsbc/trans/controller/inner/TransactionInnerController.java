@@ -48,17 +48,17 @@ public class TransactionInnerController {
      */
     @PostMapping("/clear")
     public ResponseEntity<CommonResponse<Void>> clearAllTransactions() {
-        log.info("开始清空所有交易数据");
+        log.info("Start clearing all transaction data");
         List<Transaction> allTransactions = transactionService.getAllTransactions();
         
         int count = 0;
         for (Transaction transaction : allTransactions) {
             transactionService.deleteTransaction(transaction.getId());
-            log.info("交易记录已删除，ID：{}，详情：{}", transaction.getId(), transaction);
+            log.info("Transaction record deleted, ID: {}, details: {}", transaction.getId(), transaction);
             count++;
         }
         
-        log.info("交易数据清理完成，共清理{}条记录", count);
+        log.info("Transaction data cleanup completed, {} records cleared", count);
         return ResponseEntity.ok(CommonResponse.succeed(null));
     }
 } 

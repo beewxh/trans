@@ -3,8 +3,8 @@ package com.hsbc.common.response.enums;
 import lombok.Getter;
 
 /**
- * 响应码枚举
- * 定义系统响应的状态码和对应的消息
+ * Response Code Enumeration
+ * Defines system response status codes and corresponding messages
  *
  * @author rd
  * @version 1.0
@@ -13,26 +13,26 @@ import lombok.Getter;
 public enum ResponseCode {
 
     /**
-     * 成功响应码
+     * Success response code
      */
-    SUCC("000000", "请求成功");
+    SUCC("000000", "Request successful");
 
     /**
-     * 响应码
+     * Response code
      */
     @Getter
     private final String code;
 
     /**
-     * 响应消息
+     * Response message
      */
     private final String msg;
 
     /**
-     * 构造函数
+     * Constructor
      *
-     * @param code 响应码
-     * @param msg 响应消息
+     * @param code Response code
+     * @param msg Response message
      */
     ResponseCode(String code, String msg) {
         this.msg = msg;

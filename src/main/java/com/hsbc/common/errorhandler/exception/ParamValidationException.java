@@ -1,8 +1,8 @@
 package com.hsbc.common.errorhandler.exception;
 
 /**
- * 参数验证异常类
- * 用于表示参数验证失败的异常情况，继承自业务异常类
+ * Parameter Validation Exception
+ * Used to represent parameter validation failures, extends from business exception
  *
  * @author rd
  * @version 1.0
@@ -11,9 +11,9 @@ package com.hsbc.common.errorhandler.exception;
 public class ParamValidationException extends BusinessException {
 
     /**
-     * 使用异常消息构造异常
+     * Constructor with error message
      *
-     * @param message 异常消息
+     * @param message Error message
      */
     public ParamValidationException(String message) {
         super(message);

@@ -5,6 +5,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
+ * Snowflake ID Generator
+ * Structure:
+ * - 1 bit sign (fixed as 0)
+ * - 41 bits timestamp (milliseconds)
+ * - 10 bits machine ID (5 bits datacenter + 5 bits machine)
+ * - 12 bits sequence number
+ *
+ * @author rd
+ * @version 1.0
  * 雪花算法ID生成器
  * 结构：
  * - 1位符号位（固定为0）

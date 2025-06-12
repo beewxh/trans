@@ -12,8 +12,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * 参数验证工具类
- * 提供基于JSR-380(Bean Validation 2.0)的参数验证功能
+ * Parameter Validation Utility Class
+ * Provides parameter validation functionality based on JSR-380 (Bean Validation 2.0)
  *
  * @author rd
  * @version 1.0
@@ -24,7 +24,7 @@ public class ValidationUtils {
     private final Validator validator;
 
     /**
-     * 构造函数，初始化验证器
+     * Constructor, initializes the validator
      */
     public ValidationUtils() {
         try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
@@ -33,11 +33,11 @@ public class ValidationUtils {
     }
 
     /**
-     * 验证对象并返回验证结果
+     * Validate object and return validation result
      *
-     * @param obj 待验证的对象
-     * @return 验证失败时返回错误信息，验证成功时返回null
-     * @param <T> 对象类型
+     * @param obj Object to validate
+     * @return Error message if validation fails
+     * @param <T> Object type
      */
     private <T> String validateObject(T obj) {
         Set<ConstraintViolation<T>> violations = validator.validate(obj);
@@ -50,44 +50,44 @@ public class ValidationUtils {
     }
 
     /**
-     * 验证对象，验证失败时抛出IllegalArgumentException
+     * Validate object, throw IllegalArgumentException if validation fails
      *
-     * @param obj 待验证的对象
-     * @param <T> 对象类型
-     * @throws IllegalArgumentException 当验证失败时抛出此异常
+     * @param obj Object to validate
+     * @param <T> Object type
+     * @throws IllegalArgumentException Thrown when validation fails
      */
     public <T> void validate(T obj) {
         String validationResult = validateObject(obj);
         if (validationResult != null) {
-            throw new IllegalArgumentException("参数验证失败: " + validationResult);
+            throw new IllegalArgumentException("Parameter validation failed: " + validationResult);
         }
     }
 
     /**
-     * 验证对象，验证失败时抛出ParamValidationException
+     * Validate object, throw ParamValidationException if validation fails
      *
-     * @param obj 待验证的对象
-     * @param <T> 对象类型
-     * @throws ParamValidationException 当验证失败时抛出此异常
+     * @param obj Object to validate
+     * @param <T> Object type
+     * @throws ParamValidationException Thrown when validation fails
      */
     public <T> void validateParams(T obj) {
         String validationResult = validateObject(obj);
         if (validationResult != null) {
-            throw new ParamValidationException("参数验证失败: " + validationResult).code(ErrorCode.PARAM_ERROR.getCode());
+            throw new ParamValidationException("Parameter validation failed: " + validationResult).code(ErrorCode.PARAM_ERROR.getCode());
         }
     }
 
     /**
-     * 验证字符串是否为有效的Long类型
+     * Validate string is a valid Long type
      *
-     * @param id 待验证的字符串
-     * @throws ParamValidationException 当验证失败时抛出此异常
+     * @param id String to validate
+     * @throws ParamValidationException Thrown when validation fails
      */
     public void validateLongFormat(String id) {
         try {
             Long.valueOf(id);
         } catch (NumberFormatException e) {
-            throw new ParamValidationException("参数验证失败: 参数必须为Long型，当前值为" + id).code(ErrorCode.PARAM_ERROR.getCode());
+            throw new ParamValidationException("Parameter validation failed: Parameter must be Long type, current value is " + id).code(ErrorCode.PARAM_ERROR.getCode());
         }
     }
 } 

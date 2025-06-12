@@ -12,8 +12,8 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 
 /**
- * 交易数据清理客户端
- * 用于清理测试数据，通过调用内部接口删除所有交易记录
+ * Transaction Data Cleanup Client
+ * Used to clean up test data by calling internal interface to delete all transaction records
  *
  * @author rd
  * @version 1.0
@@ -23,18 +23,18 @@ import java.time.Duration;
 public class TransactionClearClient {
 
     /**
-     * 主方法
-     * 调用内部接口清理所有交易数据
+     * Main method
+     * Call internal interface to clean up all transaction data
      *
-     * @param args 命令行参数（未使用）
+     * @param args Command line arguments (unused)
      */
     public static void main(String[] args) {
         try {
-            log.info("开始清理测试数据...");
+            log.info("Starting to clean up test data...");
             String url = "http://localhost:8080/inner/transactions/clear";
 
             final HttpClient httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(30)) // 增加超时时间，因为dao层有5秒sleep
+                .connectTimeout(Duration.ofSeconds(30)) // Increase timeout because dao layer has 5 seconds sleep
                 .build();
 
             HttpRequest request = HttpRequest.newBuilder()
@@ -45,7 +45,7 @@ public class TransactionClearClient {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             assertEquals(200, response.statusCode());
             assertEquals(ResponseCode.SUCC.getCode(), JsonUtils.parseNode(response.body()).get("code").asText());
-            log.info("测试数据清理完成");
+            log.info("Test data cleanup completed");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new RuntimeException(e);

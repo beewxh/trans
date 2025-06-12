@@ -8,8 +8,9 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * Bean属性复制工具类测试
- * 用于测试CopyBeanUtils类的各项功能，包括相同字段复制、不同字段复制、继承关系复制等
+ * Test class for Bean property copy utility
+ * Tests various functionalities of CopyBeanUtils class, including copying properties between objects
+ * with same fields, different fields, and inheritance relationships
  *
  * @author rd
  * @version 1.0
@@ -18,23 +19,23 @@ import java.util.Date;
 class CopyBeanUtilsTest {
 
     /**
-     * 测试相同字段的属性复制
-     * 验证具有相同字段的对象之间的属性复制功能
+     * Test copying properties between objects with same fields
+     * Verifies the property copying functionality between objects that have identical fields
      */
     @Test
     void testCopyPropertiesWithSameFields() {
-        // 准备测试数据
+        // Prepare test data
         SourceBean source = new SourceBean();
         source.setId(1L);
-        source.setName("测试");
+        source.setName("Test");
         source.setAmount(new BigDecimal("100.00"));
         source.setCreateTime(new Date());
 
-        // 测试拷贝
+        // Test copying
         DestinationBean destination = new DestinationBean();
         CopyBeanUtils.copyProperties(source, destination);
 
-        // 验证结果
+        // Verify results
         assertEquals(source.getId(), destination.getId());
         assertEquals(source.getName(), destination.getName());
         assertEquals(source.getAmount(), destination.getAmount());
@@ -42,70 +43,72 @@ class CopyBeanUtilsTest {
     }
 
     /**
-     * 测试不同字段的属性复制
-     * 验证具有不同字段的对象之间的属性复制功能，确保只复制共同字段
+     * Test copying properties between objects with different fields
+     * Verifies the property copying functionality between objects with different field sets,
+     * ensuring only common fields are copied
      */
     @Test
     void testCopyPropertiesWithDifferentFields() {
-        // 准备测试数据
+        // Prepare test data
         SourceBean source = new SourceBean();
         source.setId(1L);
-        source.setName("测试");
+        source.setName("Test");
         source.setAmount(new BigDecimal("100.00"));
         source.setCreateTime(new Date());
-        source.setExtra("额外字段"); // 目标对象没有这个字段
+        source.setExtra("Extra Field"); // Field not in destination
 
         DifferentFieldsBean destination = new DifferentFieldsBean();
-        destination.setCode("原始代码"); // 源对象没有这个字段
+        destination.setCode("Original Code"); // Field not in source
 
-        // 测试拷贝
+        // Test copying
         CopyBeanUtils.copyProperties(source, destination);
 
-        // 验证结果
+        // Verify results
         assertEquals(source.getId(), destination.getId());
         assertEquals(source.getName(), destination.getName());
-        assertEquals("原始代码", destination.getCode()); // 不应该被覆盖
+        assertEquals("Original Code", destination.getCode()); // Should not be overwritten
     }
 
     /**
-     * 测试继承关系的属性复制
-     * 验证具有继承关系的对象之间的属性复制功能，包括父类和子类的字段
+     * Test copying properties between objects with inheritance relationship
+     * Verifies the property copying functionality between objects with inheritance,
+     * including fields from both parent and child classes
      */
     @Test
     void testCopyPropertiesWithInheritance() {
-        // 准备测试数据
+        // Prepare test data
         ChildSourceBean source = new ChildSourceBean();
         source.setId(1L);
-        source.setName("测试");
-        source.setChildField("子类字段");
+        source.setName("Test");
+        source.setChildField("Child Field");
 
         ChildDestinationBean destination = new ChildDestinationBean();
         
-        // 测试拷贝
+        // Test copying
         CopyBeanUtils.copyProperties(source, destination);
 
-        // 验证结果
+        // Verify results
         assertEquals(source.getId(), destination.getId());
         assertEquals(source.getName(), destination.getName());
         assertEquals(source.getChildField(), destination.getChildField());
     }
 
     /**
-     * 测试创建新实例并复制属性
-     * 验证创建目标类新实例并复制属性的功能
+     * Test creating new instance and copying properties
+     * Verifies the functionality of creating a new instance of target class and copying properties
      */
     @Test
     void testCopyPropertiesToNewInstance() {
-        // 准备测试数据
+        // Prepare test data
         SourceBean source = new SourceBean();
         source.setId(1L);
-        source.setName("测试");
+        source.setName("Test");
         source.setAmount(new BigDecimal("100.00"));
 
-        // 测试拷贝到新实例
+        // Test copying to new instance
         DestinationBean destination = CopyBeanUtils.copyProperties(source, DestinationBean.class);
 
-        // 验证结果
+        // Verify results
         assertNotNull(destination);
         assertEquals(source.getId(), destination.getId());
         assertEquals(source.getName(), destination.getName());
@@ -113,32 +116,32 @@ class CopyBeanUtilsTest {
     }
 
     /**
-     * 测试空值的属性复制
-     * 验证包含null值的属性复制功能
+     * Test copying properties with null values
+     * Verifies the property copying functionality when source contains null values
      */
     @Test
     void testCopyPropertiesWithNullValues() {
-        // 准备测试数据
+        // Prepare test data
         SourceBean source = new SourceBean();
         source.setId(1L);
-        // name设置为null
+        // name is set to null
         source.setAmount(new BigDecimal("100.00"));
 
         DestinationBean destination = new DestinationBean();
-        destination.setName("原始名称");
+        destination.setName("Original Name");
 
-        // 测试拷贝
+        // Test copying
         CopyBeanUtils.copyProperties(source, destination);
 
-        // 验证结果
+        // Verify results
         assertEquals(source.getId(), destination.getId());
-        assertNull(destination.getName()); // null值应该被拷贝
+        assertNull(destination.getName()); // null value should be copied
         assertEquals(source.getAmount(), destination.getAmount());
     }
 
     /**
-     * 源对象类
-     * 用于测试的源数据对象
+     * Source bean class
+     * Source data object for testing
      */
     @Data
     static class SourceBean {
@@ -150,8 +153,8 @@ class CopyBeanUtilsTest {
     }
 
     /**
-     * 目标对象类
-     * 用于测试的目标数据对象，与源对象具有相同的字段
+     * Destination bean class
+     * Target data object for testing, has same fields as source object
      */
     @Data
     static class DestinationBean {
@@ -162,8 +165,8 @@ class CopyBeanUtilsTest {
     }
 
     /**
-     * 不同字段对象类
-     * 用于测试的目标数据对象，与源对象具有不同的字段
+     * Different fields bean class
+     * Target data object for testing, has different fields from source object
      */
     @Data
     static class DifferentFieldsBean {
@@ -173,8 +176,8 @@ class CopyBeanUtilsTest {
     }
 
     /**
-     * 基础对象类
-     * 用于测试继承关系的基类
+     * Base bean class
+     * Base class for testing inheritance
      */
     @Data
     static class BaseBean {
@@ -183,8 +186,8 @@ class CopyBeanUtilsTest {
     }
 
     /**
-     * 子类源对象
-     * 用于测试继承关系的源数据子类
+     * Child source bean class
+     * Source child class for testing inheritance
      */
     @Data
     static class ChildSourceBean extends BaseBean {
@@ -192,8 +195,8 @@ class CopyBeanUtilsTest {
     }
 
     /**
-     * 子类目标对象
-     * 用于测试继承关系的目标数据子类
+     * Child destination bean class
+     * Target child class for testing inheritance
      */
     @Data
     static class ChildDestinationBean extends BaseBean {

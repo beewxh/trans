@@ -5,8 +5,8 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 /**
- * 枚举值验证器
- * 实现对{@link EnumValue}注解的验证逻辑，用于验证字段值是否为指定枚举类中的有效值
+ * Enum Value Validator
+ * Implements validation logic for {@link EnumValue} annotation, used to validate if a field value is a valid value in the specified enum class
  *
  * @author rd
  * @version 1.0
@@ -17,9 +17,9 @@ public class EnumValueValidator implements ConstraintValidator<EnumValue, Object
     private String method;
 
     /**
-     * 初始化验证器
+     * Initialize validator
      *
-     * @param constraintAnnotation 枚举值验证注解
+     * @param constraintAnnotation Enum value validation annotation
      */
     @Override
     public void initialize(EnumValue constraintAnnotation) {
@@ -28,13 +28,13 @@ public class EnumValueValidator implements ConstraintValidator<EnumValue, Object
     }
 
     /**
-     * 执行验证
-     * 通过反射调用指定的方法获取枚举值，并与待验证的值进行比较
+     * Perform validation
+     * Uses reflection to call the specified method to get enum value and compare with the value to validate
      *
-     * @param value 待验证的值
-     * @param context 验证上下文
-     * @return 验证是否通过
-     * @throws FrameworkException 当无法访问枚举属性时抛出此异常
+     * @param value Value to validate
+     * @param context Validation context
+     * @return Whether validation passed
+     * @throws FrameworkException When enum property cannot be accessed
      */
     @Override
     public boolean isValid(Object value, ConstraintValidatorContext context) {
@@ -49,7 +49,7 @@ public class EnumValueValidator implements ConstraintValidator<EnumValue, Object
                     return true;
                 }
             } catch (Exception e) {
-                throw new FrameworkException("无法访问枚举属性", e);
+                throw new FrameworkException("Cannot access enum property", e);
             }
         }
         return false;

@@ -6,8 +6,8 @@ import jakarta.validation.Payload;
 import java.lang.annotation.*;
 
 /**
- * 枚举值验证注解
- * 用于验证字段值是否为指定枚举类中的有效值
+ * Enum Value Validation Annotation
+ * Used to validate if a field value is a valid value in the specified enum class
  *
  * @author rd
  * @version 1.0
@@ -19,27 +19,27 @@ import java.lang.annotation.*;
 @Documented
 public @interface EnumValue {
     /**
-     * 验证失败时的错误消息
+     * Error message when validation fails
      */
-    String message() default "必须是有效的枚举值";
+    String message() default "Must be a valid enum value";
 
     /**
-     * 验证分组
+     * Validation groups
      */
     Class<?>[] groups() default {};
 
     /**
-     * 验证载荷
+     * Validation payload
      */
     Class<? extends Payload>[] payload() default {};
 
     /**
-     * 要验证的枚举类
+     * Enum class to validate against
      */
     Class<? extends Enum<?>> enumClass();
 
     /**
-     * 用于获取枚举值的方法名，默认使用name()方法
+     * Method name to get enum value, defaults to name() method
      */
     String method() default "name";
 }

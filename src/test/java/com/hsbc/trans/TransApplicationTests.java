@@ -4,8 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 /**
- * 交易系统应用程序测试类
- * 用于测试Spring Boot应用程序的上下文加载
+ * Transaction System Application Test Class
+ * Used to test Spring Boot application context loading
  *
  * @author rd
  * @version 1.0
@@ -15,11 +15,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 class TransApplicationTests {
 
 	/**
-	 * 测试Spring Boot应用程序上下文加载
-	 * 验证应用程序的基本配置和依赖是否正确
+	 * Test Spring Boot application context loading
+	 * Verify if the application's basic configuration and dependencies are correct
 	 */
 	@Test
-	void test() {
+	void contextLoads() {
 	}
 
 }

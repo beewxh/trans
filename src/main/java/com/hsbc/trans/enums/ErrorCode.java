@@ -7,8 +7,8 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 错误码枚举
- * 定义系统中所有的错误码，包括系统错误和业务错误
+ * Error Code Enumeration
+ * Defines all error codes in the system, including system errors and business errors
  *
  * @author rd
  * @version 1.0
@@ -19,67 +19,67 @@ import lombok.extern.slf4j.Slf4j;
 public enum ErrorCode {
 
     /**
-     * 系统错误，表示系统内部未知异常
+     * System error, indicates an unknown internal system exception
      */
-    SYSTEM_ERROR("000001", "系统异常，请稍后再试", ErrorType.SYSTEM_ERROR, ErrorLevel.ERROR),
+    SYSTEM_ERROR("000001", "System error, please try again later", ErrorType.SYSTEM_ERROR, ErrorLevel.ERROR),
 
     /**
-     * 参数错误，表示接口参数验证失败
+     * Parameter error, indicates interface parameter validation failure
      */
-    PARAM_ERROR("000002", "参数错误", ErrorType.PARAM_ERROR, ErrorLevel.INFO),
+    PARAM_ERROR("000002", "Parameter error", ErrorType.PARAM_ERROR, ErrorLevel.INFO),
 
     /**
-     * 未知错误，表示未定义的错误类型
+     * Unknown error, indicates undefined error type
      */
-    UNKNOWN_ERROR("000003", "未知错误", ErrorType.SYSTEM_ERROR, ErrorLevel.ERROR),
+    UNKNOWN_ERROR("000003", "Unknown error", ErrorType.SYSTEM_ERROR, ErrorLevel.ERROR),
 
     /**
-     * 交易订单未找到错误
+     * Transaction order not found error
      */
-    TRANSACTION_NOT_FOUND("100001", "交易订单未找到"),
+    TRANSACTION_NOT_FOUND("100001", "Transaction not found"),
 
     /**
-     * 交易订单重复错误
+     * Duplicate transaction order error
      */
-    TRANSACTION_DUPLICATE("100002", "交易订单已存在", ErrorType.BUSINESS_ERROR, ErrorLevel.WARN),
+    TRANSACTION_DUPLICATE("100002", "Transaction already exists", ErrorType.BUSINESS_ERROR, ErrorLevel.WARN),
 
     /**
-     * 交易订单未变更错误
+     * Transaction order unchanged error
      */
-    TRANSACTION_NOT_CHANGED("100003", "更新操作时交易订单没有变更", ErrorType.BUSINESS_ERROR, ErrorLevel.WARN),
+    TRANSACTION_NOT_CHANGED("100003", "No changes made to transaction during update", ErrorType.BUSINESS_ERROR, ErrorLevel.WARN),
 
     /**
-     * 交易状态变更非法错误
+     * Invalid transaction status change error
      */
-    TRANSACTION_UPDATE_STATUS_INVALID("100004", "更新操作时状态变迁不合法");
+    TRANSACTION_UPDATE_STATUS_INVALID("100004", "Invalid transaction status transition");
 
     /**
-     * 错误码
+     * Error code
      */
     private final String code;
 
     /**
-     * 错误消息
+     * Error message
      */
     private final String msg;
 
     /**
-     * 错误类型
+     * Error type
      */
     private final ErrorType type;
 
     /**
-     * 错误级别
+     * Error level
      */
     private final ErrorLevel level;
 
     /**
-     * 构造函数
+     * Constructor
      *
-     * @param code 错误码
-     * @param msg 错误消息
-     * @param type 错误类型
-     * @param level 错误级别
+     * @param code Error code
+     * @param msg Error message
+     * @param type Error type
+     * @param level Error level
      */
     ErrorCode(String code, String msg, ErrorType type, ErrorLevel level) {
         this.msg = msg;
@@ -89,10 +89,10 @@ public enum ErrorCode {
     }
 
     /**
-     * 构造函数，默认使用业务错误类型和错误级别
+     * Constructor, uses default business error type and error level
      *
-     * @param code 错误码
-     * @param msg 错误消息
+     * @param code Error code
+     * @param msg Error message
      */
     ErrorCode(String code, String msg) {
         this.msg = msg;
@@ -102,10 +102,10 @@ public enum ErrorCode {
     }
 
     /**
-     * 根据错误码获取对应的错误码枚举实例
+     * Get error code enumeration instance by error code
      *
-     * @param code 错误码
-     * @return 错误码枚举实例，如果未找到则返回UNKNOWN_ERROR
+     * @param code Error code
+     * @return Error code enumeration instance, returns UNKNOWN_ERROR if not found
      */
     public static ErrorCode getByCode(String code) {
         ErrorCode[] errors = ErrorCode.values();
@@ -119,9 +119,9 @@ public enum ErrorCode {
     }
 
     /**
-     * 转换为JSON字符串
+     * Convert to JSON string
      *
-     * @return JSON格式的错误码信息
+     * @return Error code information in JSON format
      */
     @Override
     public String toString() {

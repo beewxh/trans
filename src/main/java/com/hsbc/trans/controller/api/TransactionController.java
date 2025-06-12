@@ -21,8 +21,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 交易控制器
- * 提供交易相关的REST API接口，包括创建、查询、更新和删除交易等功能
+ * Transaction Controller
+ * Provides REST API endpoints for transaction-related operations, including create, query, update, and delete
  *
  * @author rd
  * @version 1.0
@@ -35,20 +35,20 @@ import java.util.List;
 public class TransactionController {
 
     /**
-     * 交易服务
+     * Transaction service
      */
     private final TransactionService transactionService;
 
     /**
-     * 参数验证工具
+     * Parameter validation utility
      */
     private final ValidationUtils validationUtils;
 
     /**
-     * 构造函数
+     * Constructor
      *
-     * @param transactionService 交易服务
-     * @param validationUtils 参数验证工具
+     * @param transactionService Transaction service
+     * @param validationUtils Parameter validation utility
      */
     @Autowired
     public TransactionController(TransactionService transactionService, ValidationUtils validationUtils) {
@@ -57,112 +57,112 @@ public class TransactionController {
     }
 
     /**
-     * 创建新的交易记录
+     * Create a new transaction record
      *
-     * @param req 交易创建请求
-     * @return 创建成功的交易记录
+     * @param req Transaction creation request
+     * @return Created transaction record
      */
     @PostMapping("/create")
     public ResponseEntity<CommonResponse<Transaction>> createTransaction(
         @RequestBody TransactionReq req) {
-        log.info("开始创建交易，请求参数：{}", req);
+        log.info("Start creating transaction, request parameters: {}", req);
         validationUtils.validateParams(req);
         Transaction transaction = transactionService.createTransaction(
             req.getTransId(), req.getUserId(), req.getAmount(), req.getDescription(), req.getType());
-        log.info("交易创建成功，交易ID：{}，业务交易ID：{}", transaction.getId(), transaction.getTransId());
+        log.info("Transaction created successfully, ID: {}, Business ID: {}", transaction.getId(), transaction.getTransId());
         return ResponseEntity.ok(CommonResponse.succeed(transaction));
     }
 
     /**
-     * 根据ID查询交易记录
+     * Query transaction record by ID
      *
-     * @param id 交易记录ID
-     * @return 交易记录
+     * @param id Transaction record ID
+     * @return Transaction record
      */
     @GetMapping("/{id}")
     public ResponseEntity<CommonResponse<Transaction>> getTransaction(@PathVariable @Positive String id) {
-        log.info("开始查询交易，交易ID：{}", id);
+        log.info("Start querying transaction, ID: {}", id);
         Transaction transaction = transactionService.getTransaction(Long.valueOf(id));
-        log.info("交易查询成功，交易详情：{}", transaction);
+        log.info("Transaction query successful, details: {}", transaction);
         return ResponseEntity.ok(CommonResponse.succeed(transaction));
     }
 
     /**
-     * 分页查询交易记录
+     * Query transaction records with pagination
      *
-     * @param page 页码，从0开始
-     * @param size 每页记录数
-     * @return 分页结果
+     * @param page Page number, starting from 0
+     * @param size Records per page
+     * @return Paginated result
      */
     @GetMapping("/page")
     public ResponseEntity<CommonResponse<PageResult<Transaction>>> getTransactionPage(
         @RequestParam(defaultValue = "0") @PositiveOrZero int page,
         @RequestParam(defaultValue = "10") @Positive int size) {
-        log.info("开始分页查询交易，页码：{}，每页记录数：{}", page, size);
+        log.info("Start querying transactions by page, page number: {}, page size: {}", page, size);
         PageResult<Transaction> result = transactionService.getTransactionPage(new PageRequest(page, size));
-        log.info("交易分页查询成功，总记录数：{}，当前页记录数：{}", result.getTotalElements(), result.getContent().size());
+        log.info("Transaction page query successful, total records: {}, current page records: {}", result.getTotalElements(), result.getContent().size());
         return ResponseEntity.ok(CommonResponse.succeed(result));
     }
 
     /**
-     * 查询所有交易记录
+     * Query all transaction records
      *
-     * @return 交易记录列表
+     * @return List of transaction records
      */
     @GetMapping("/all")
     public ResponseEntity<CommonResponse<List<Transaction>>> getAllTransactions() {
-        log.info("开始查询所有交易");
+        log.info("Start querying all transactions");
         List<Transaction> transactions = transactionService.getAllTransactions();
-        log.info("查询所有交易成功，总记录数：{}", transactions.size());
+        log.info("Query all transactions successful, total records: {}", transactions.size());
         return ResponseEntity.ok(CommonResponse.succeed(transactions));
     }
 
     /**
-     * 更新交易状态
+     * Update transaction status
      *
-     * @param id 交易记录ID
-     * @param status 新的交易状态
-     * @param description 更新说明
-     * @return 更新后的交易记录
+     * @param id Transaction record ID
+     * @param status New transaction status
+     * @param description Update description
+     * @return Updated transaction record
      */
     @GetMapping("/{id}/update")
     public ResponseEntity<CommonResponse<Transaction>> updateTransactionStatus(
         @PathVariable @Positive String id,
-        @RequestParam @NotNull @EnumValue(enumClass = TransactionStatus.class, message = "交易状态枚举值错误") String status,
+        @RequestParam @NotNull @EnumValue(enumClass = TransactionStatus.class, message = "Invalid transaction status value") String status,
         @RequestParam String description
     ) {
-        log.info("开始更新交易状态，交易ID：{}，新状态：{}，更新说明：{}", id, status, description);
+        log.info("Start updating transaction status, ID: {}, new status: {}, description: {}", id, status, description);
         Transaction transaction = transactionService.updateTransactionStatus(
             Long.valueOf(id), TransactionStatus.valueOf(status), description);
-        log.info("交易状态更新成功，交易ID：{}，新状态：{}", transaction.getId(), transaction.getStatus());
+        log.info("Transaction status update successful, ID: {}, new status: {}", transaction.getId(), transaction.getStatus());
         return ResponseEntity.ok(CommonResponse.succeed(transaction));
     }
 
     /**
-     * 删除交易记录
+     * Delete transaction record
      *
-     * @param id 交易记录ID
-     * @return 无内容响应
+     * @param id Transaction record ID
+     * @return No content response
      */
     @PostMapping("/{id}/delete")
     public ResponseEntity<Void> deleteTransaction(@PathVariable Long id) {
-        log.info("开始删除交易，交易ID：{}", id);
+        log.info("Start deleting transaction, ID: {}", id);
         transactionService.deleteTransaction(id);
-        log.info("交易删除成功，交易ID：{}", id);
+        log.info("Transaction deletion successful, ID: {}", id);
         return ResponseEntity.ok().build();
     }
 
     /**
-     * 根据业务交易ID查询交易记录
+     * Query transaction record by business transaction ID
      *
-     * @param transId 业务交易ID
-     * @return 交易记录
+     * @param transId Business transaction ID
+     * @return Transaction record
      */
     @GetMapping("/trans/{transId}")
     public ResponseEntity<CommonResponse<Transaction>> getTransactionByTransId(@PathVariable String transId) {
-        log.info("开始根据业务交易ID查询交易，业务交易ID：{}", transId);
+        log.info("Start querying transaction by business ID: {}", transId);
         Transaction transaction = transactionService.getTransactionByTransId(transId);
-        log.info("根据业务交易ID查询交易成功，交易详情：{}", transaction);
+        log.info("Query transaction by business ID successful, details: {}", transaction);
         return ResponseEntity.ok(CommonResponse.succeed(transaction));
     }
 } 

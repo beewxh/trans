@@ -18,8 +18,8 @@ import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * 交易数据初始化客户端
- * 用于生成测试数据，通过HTTP接口批量创建随机交易记录
+ * Transaction Data Initialization Client
+ * Used to generate test data by creating random transaction records through HTTP interface
  *
  * @author rd
  * @version 1.0
@@ -31,25 +31,25 @@ public class TransactionInitClient {
     private static final List<TransactionType> TYPES = List.of(TransactionType.values());
 
     /**
-     * 主方法
-     * 创建10个随机交易记录用于测试
+     * Main method
+     * Create 10 random transaction records for testing
      *
-     * @param args 命令行参数（未使用）
+     * @param args Command line arguments (unused)
      */
     public static void main(String[] args) {
-        // 1. 创建HttpClient
+        // 1. Create HttpClient
         HttpClient client = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
             .build();
 
-        // 2. 创建请求
+        // 2. Create request
         List<CompletableFuture<HttpResponse<String>>> futures = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
-            // 构建请求数据
+            // Build request data
             TransactionReq req = createRandomTransaction(i);
 
-            // 构建HTTP请求
+            // Build HTTP request
             HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:8080/api/transactions/create"))
                 .header("Content-Type", "application/json")
@@ -75,10 +75,10 @@ public class TransactionInitClient {
     }
 
     /**
-     * 创建随机交易请求对象
+     * Create random transaction request object
      *
-     * @param index 交易序号，用于生成唯一的交易ID
-     * @return 随机生成的交易请求对象
+     * @param index Transaction sequence number, used to generate unique transaction ID
+     * @return Randomly generated transaction request object
      */
     private static TransactionReq createRandomTransaction(int index) {
         TransactionReq req = new TransactionReq();
@@ -91,34 +91,34 @@ public class TransactionInitClient {
     }
 
     /**
-     * 生成随机交易金额
-     * 生成100-10000之间的随机金额，保留2位小数
+     * Generate random transaction amount
+     * Generate amount between 100-10000 with 2 decimal places
      *
-     * @return 随机生成的交易金额
+     * @return Randomly generated transaction amount
      */
     private static BigDecimal randomAmount() {
-        // 生成100-10000之间的随机金额，保留2位小数
+        // Generate random amount between 100-10000 with 2 decimal places
         return BigDecimal.valueOf(RANDOM.nextDouble() * 9900 + 100)
             .setScale(2, BigDecimal.ROUND_HALF_UP);
     }
 
     /**
-     * 随机选择交易类型
+     * Randomly select transaction type
      *
-     * @return 随机选择的交易类型
+     * @return Randomly selected transaction type
      */
     private static TransactionType randomTransactionType() {
         return TYPES.get(RANDOM.nextInt(TYPES.size()));
     }
 
     /**
-     * 生成交易描述
+     * Generate transaction description
      *
-     * @param index 交易序号
-     * @return 生成的交易描述
+     * @param index Transaction sequence number
+     * @return Generated transaction description
      */
     private static String generateDescription(int index) {
-        return String.format("测试交易-%d-%s", index + 1,
+        return String.format("Test Transaction-%d-%s", index + 1,
             randomTransactionType().getDescription());
     }
 

@@ -17,8 +17,8 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * 交易服务实现类
- * 实现了{@link TransactionService}接口，提供交易相关的业务操作实现
+ * Transaction Service Implementation
+ * Implements the {@link TransactionService} interface, providing business operation implementations for transactions
  *
  * @author rd
  * @version 1.0
@@ -29,20 +29,20 @@ import java.util.List;
 public class TransactionServiceImpl implements TransactionService {
 
     /**
-     * 交易数据访问对象
+     * Transaction data access object
      */
     private final TransactionDao transactionDao;
 
     /**
-     * ID生成器
+     * ID generator
      */
     private final SnowflakeIdGenerator idGenerator;
 
     /**
-     * 构造函数
+     * Constructor
      *
-     * @param transactionDao 交易数据访问对象
-     * @param idGenerator ID生成器
+     * @param transactionDao Transaction data access object
+     * @param idGenerator ID generator
      */
     @Autowired
     public TransactionServiceImpl(TransactionDao transactionDao, SnowflakeIdGenerator idGenerator) {
@@ -65,7 +65,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public Transaction getTransaction(Long id) {
         return transactionDao.queryById(id)
-            .orElseThrow(() -> new BusinessException("交易记录未找到，ID: " + id).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode()));
+            .orElseThrow(() -> new BusinessException("Transaction record not found, ID: " + id).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode()));
     }
 
     /**
@@ -91,8 +91,7 @@ public class TransactionServiceImpl implements TransactionService {
     public Transaction updateTransactionStatus(Long id, TransactionStatus status, String description) {
         Transaction transaction = this.getTransaction(id);
         if (!TransactionStatus.canTransit(transaction.getStatus(), status)) {
-            throw new BusinessException("交易状态变更不合法: " + transaction.getStatus() + " -> " + status)
-                .code(ErrorCode.TRANSACTION_UPDATE_STATUS_INVALID.getCode());
+            throw new BusinessException("Invalid transaction status transition: " + transaction.getStatus() + " -> " + status);
         }
         transaction.setStatus(status);
         transaction.setDescription(description);
@@ -113,6 +112,6 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public Transaction getTransactionByTransId(String transId) {
         return transactionDao.queryByTransId(transId)
-            .orElseThrow(() -> new BusinessException("交易记录未找到，业务ID: " + transId).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode()));
+            .orElseThrow(() -> new BusinessException("Transaction record not found, business ID: " + transId).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode()));
     }
 } 

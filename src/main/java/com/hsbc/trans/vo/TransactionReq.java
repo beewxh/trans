@@ -13,8 +13,8 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 /**
- * 交易创建请求对象
- * 用于接收创建交易的请求参数，包含必要的参数验证规则
+ * Transaction Request Object
+ * Used to encapsulate transaction creation request parameters
  *
  * @author rd
  * @version 1.0
@@ -24,33 +24,33 @@ import java.sql.Timestamp;
 public class TransactionReq {
 
     /**
-     * 业务交易ID，必须唯一
+     * Business transaction ID, must be unique
      */
     @NotEmpty
     private String transId;
 
     /**
-     * 用户ID，标识交易的发起用户
+     * User ID who initiated the transaction
      */
     @NotEmpty
     private String userId;
 
     /**
-     * 交易金额，必须大于0.01
+     * Transaction amount, must be greater than 0.01
      */
     @NotNull
     @DecimalMin("0.01")
     private BigDecimal amount;
 
     /**
-     * 交易类型，必须是TransactionType枚举中的有效值
+     * Transaction type
      */
     @NotNull
-    @EnumValue(enumClass = TransactionType.class, message = "交易类型枚举值错误")
+    @EnumValue(enumClass = TransactionType.class, message = "Invalid transaction type value")
     private TransactionType type;
 
     /**
-     * 交易描述，可选字段
+     * Transaction description (optional)
      */
     private String description;
 }

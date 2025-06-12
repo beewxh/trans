@@ -3,8 +3,8 @@ package com.hsbc.common.errorhandler.exception;
 import lombok.Data;
 
 /**
- * 业务异常类
- * 用于表示业务处理过程中的异常情况，支持错误码和错误消息
+ * Business Exception
+ * Used to represent business rule violations and other business-related errors
  *
  * @author rd
  * @version 1.0
@@ -97,4 +97,17 @@ public class BusinessException extends RuntimeException {
         this.code = code;
         return this;
     }
+
+    /**
+     * Constructor with error code
+     *
+     * @param errorCode Error code
+     */
+
+    /**
+     * Constructor with error code and custom message
+     *
+     * @param errorCode Error code
+     * @param message Custom error message
+     */
 }

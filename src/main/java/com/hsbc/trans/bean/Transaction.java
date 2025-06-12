@@ -13,8 +13,8 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 /**
- * 交易实体类
- * 用于表示系统中的交易记录，包含交易的所有属性和验证规则
+ * Transaction Entity Class
+ * Represents a transaction record in the system, containing all transaction attributes and validation rules
  *
  * @author rd
  * @version 1.0
@@ -24,68 +24,68 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 public class Transaction {
     /**
-     * 交易记录ID，系统自动生成的唯一标识
+     * Transaction record ID, automatically generated unique identifier
      */
     @NotNull
     private Long id;
 
     /**
-     * 业务交易ID，由业务系统提供的唯一标识
+     * Business transaction ID, unique identifier provided by the business system
      */
     @NotEmpty
     private String transId;
 
     /**
-     * 用户ID，标识交易的发起用户
+     * User ID, identifies the user who initiated the transaction
      */
     @NotEmpty
     private String userId;
 
     /**
-     * 交易金额，必须大于0.01
+     * Transaction amount, must be greater than 0.01
      */
     @NotNull
     @DecimalMin("0.01")
     private BigDecimal amount;
 
     /**
-     * 交易类型，如存款、取款等
+     * Transaction type, such as deposit, withdrawal, etc.
      */
     @NotNull
     private TransactionType type;
 
     /**
-     * 交易状态，如待处理、处理中、已完成等
+     * Transaction status, such as pending, processing, completed, etc.
      */
     @NotNull
     private TransactionStatus status;
 
     /**
-     * 交易创建时间
+     * Transaction creation time
      */
     @NotNull
     private Timestamp createTime;
 
     /**
-     * 交易最后更新时间
+     * Transaction last update time
      */
     @NotNull
     private Timestamp updateTime;
 
     /**
-     * 交易描述，可选字段
+     * Transaction description, optional field
      */
     private String description;
 
     /**
-     * 创建新的交易记录
+     * Create a new transaction record
      *
-     * @param id 交易记录ID
-     * @param transId 业务交易ID
-     * @param userId 用户ID
-     * @param amount 交易金额
-     * @param description 交易描述
-     * @param type 交易类型
+     * @param id Transaction record ID
+     * @param transId Business transaction ID
+     * @param userId User ID
+     * @param amount Transaction amount
+     * @param description Transaction description
+     * @param type Transaction type
      */
     public Transaction(Long id, String transId, String userId, BigDecimal amount, String description, TransactionType type) {
         this.id = id;

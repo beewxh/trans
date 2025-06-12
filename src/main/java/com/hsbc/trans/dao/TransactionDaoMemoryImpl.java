@@ -19,8 +19,8 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.stream.Collectors;
 
 /**
- * 交易数据访问层内存实现
- * 提供基于内存存储的交易数据访问实现，支持并发访问
+ * Transaction Data Access Layer Memory Implementation
+ * Provides memory-based transaction data access implementation with concurrent access support
  *
  * @author rd
  * @version 1.0
@@ -42,7 +42,7 @@ public class TransactionDaoMemoryImpl implements TransactionDao {
     public Transaction add(Transaction transaction) {
         validationUtils.validate(transaction);
         if (existsByTransId(transaction.getTransId())) {
-            throw new BusinessException("交易记录已存在：" + transaction.getTransId()).code(ErrorCode.TRANSACTION_DUPLICATE.getCode());
+            throw new BusinessException("Transaction already exists: " + transaction.getTransId()).code(ErrorCode.TRANSACTION_DUPLICATE.getCode());
         }
         transIdIndexMap.put(transaction.getTransId(), transaction.getId());
         store.put(transaction.getId(), transaction);
@@ -78,7 +78,7 @@ public class TransactionDaoMemoryImpl implements TransactionDao {
     @Override
     public Transaction updateById(Transaction transaction) {
         if (!store.exists(transaction.getId())) {
-            throw new BusinessException("交易记录不存在，ID：" + transaction.getId()).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode());
+            throw new BusinessException("Transaction not found, ID: " + transaction.getId()).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode());
         }
         synchronized (store.getLockKey(transaction.getId())) {
 //            try {
@@ -91,10 +91,10 @@ public class TransactionDaoMemoryImpl implements TransactionDao {
                 if (assign(origin, transaction)) {
                     store.put(transaction.getId(), origin);
                 } else {
-                    throw new BusinessException("交易记录未发生变更，ID：" + transaction.getId()).code(ErrorCode.TRANSACTION_NOT_CHANGED.getCode());
+                    throw new BusinessException("Transaction not changed, ID: " + transaction.getId()).code(ErrorCode.TRANSACTION_NOT_CHANGED.getCode());
                 }
             } else {
-                throw new BusinessException("并发操作时交易记录不存在，ID：" + transaction.getId()).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode());
+                throw new BusinessException("Transaction not found during concurrent operation, ID: " + transaction.getId()).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode());
             }
         }
         return transaction;
@@ -121,7 +121,7 @@ public class TransactionDaoMemoryImpl implements TransactionDao {
     @Override
     public Transaction deleteById(Long id) {
         if (!store.exists(id)) {
-            throw new BusinessException("交易记录不存在，ID：" + id).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode());
+            throw new BusinessException("Transaction not found, ID: " + id).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode());
         }
         synchronized (store.getLockKey(id)) {
 //            try {
@@ -134,7 +134,7 @@ public class TransactionDaoMemoryImpl implements TransactionDao {
                 transIdIndexMap.remove(transaction.getTransId());
                 return transaction;
             } else {
-                throw new BusinessException("并发操作时交易记录不存在，ID：" + id).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode());
+                throw new BusinessException("Transaction not found during concurrent operation, ID: " + id).code(ErrorCode.TRANSACTION_NOT_FOUND.getCode());
             }
         }
     }
@@ -142,8 +142,8 @@ public class TransactionDaoMemoryImpl implements TransactionDao {
 
 
     /**
-     * 内部存储类
-     * 提供线程安全的交易数据存储实现
+     * Internal Storage Class
+     * Provides thread-safe transaction data storage implementation
      */
     private static class TransactionStore {
         private final Map<Long, Transaction> transactionStore = new ConcurrentSkipListMap<>();

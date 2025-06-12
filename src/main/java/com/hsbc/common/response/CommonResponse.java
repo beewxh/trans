@@ -5,38 +5,38 @@ import com.hsbc.common.response.enums.ResponseCode;
 import lombok.Data;
 
 /**
- * 通用响应对象
- * 用于统一系统的响应格式，支持成功和失败两种状态
+ * Common Response Object
+ * Used to standardize system response format, supporting both success and failure states
  *
  * @author rd
  * @version 1.0
  * @since 2025/6/12
- * @param <T> 响应数据的类型
+ * @param <T> Response data type
  */
 @Data
 public class CommonResponse<T> {
 
     /**
-     * 响应码
+     * Response code
      */
     String code;
 
     /**
-     * 响应数据
+     * Response data
      */
     T data;
 
     /**
-     * 错误信息
+     * Error message
      */
     ErrorResponse error;
 
     /**
-     * 创建成功响应
+     * Create success response
      *
-     * @param data 响应数据
-     * @return 成功的响应对象
-     * @param <T> 响应数据的类型
+     * @param data Response data
+     * @return Success response object
+     * @param <T> Response data type
      */
     public static <T> CommonResponse<T> succeed(T data) {
         CommonResponse<T> response = new CommonResponse<>();
@@ -46,11 +46,11 @@ public class CommonResponse<T> {
     }
 
     /**
-     * 创建失败响应
+     * Create failure response
      *
-     * @param error 错误信息
-     * @return 失败的响应对象
-     * @param <T> 响应数据的类型
+     * @param error Error message
+     * @return Failure response object
+     * @param <T> Response data type
      */
     public static <T> CommonResponse<T> fail(ErrorResponse error) {
         CommonResponse<T> response = new CommonResponse<>();

@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * JSON工具类测试
- * 用于测试JsonUtils类的各项功能，包括对象序列化、反序列化、集合转换等
+ * JSON Utils Test
+ * Used to test various functions of JsonUtils class, including object serialization, deserialization, and collection conversion
  *
  * @author rd
  * @version 1.0
@@ -18,10 +18,10 @@ import java.util.Map;
 public class JsonUtilsTest {
 
     /**
-     * 主方法
-     * 测试JsonUtils的各种转换功能
+     * Main method
+     * Test various conversion functions of JsonUtils
      *
-     * @param args 命令行参数（未使用）
+     * @param args Command line arguments (unused)
      */
     public static void main(String[] args) {
         // 对象转JSON

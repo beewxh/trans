@@ -7,11 +7,11 @@ import java.util.Set;
 
 @Getter
 public enum TransactionStatus {
-    PENDING("待处理"),
-    PROCESSING("处理中"),
-    COMPLETED("已完成"),
-    FAILED("失败"),
-    CANCELLED("已取消");
+    PENDING("Pending"),
+    PROCESSING("Processing"),
+    COMPLETED("Completed"),
+    FAILED("Failed"),
+    CANCELLED("Cancelled");
 
     private final String description;
 

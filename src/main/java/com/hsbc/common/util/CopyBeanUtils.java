@@ -11,8 +11,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
- * Bean属性拷贝工具类
- * 提供基于反射的对象属性拷贝功能，支持深层属性拷贝和类型转换
+ * Bean attribute copy utility class
+ * Provides functionality for copying object attributes based on reflection, supporting deep attribute copying and type conversion
  *
  * @author rd
  * @version 1.0
@@ -21,18 +21,18 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CopyBeanUtils {
     /**
-     * 缓存类的字段信息，提高性能
+     * Cache class field information for performance
      */
     private static final Map<Class<?>, List<Field>> FIELDS_CACHE = new ConcurrentHashMap<>();
 
     /**
-     * 将源对象的属性拷贝到目标对象
-     * 只拷贝名称和类型都匹配的字段
+     * Copy the attributes of the source object to the target object
+     * Only copy fields with matching names and types
      *
-     * @param source 源对象
-     * @param destination 目标对象
-     * @param <S> 源对象类型
-     * @param <D> 目标对象类型
+     * @param source Source object
+     * @param destination Target object
+     * @param <S> Source object type
+     * @param <D> Target object type
      */
     public static <S, D> void copyProperties(S source, D destination) {
         if (source == null || destination == null) {
@@ -42,9 +42,9 @@ public class CopyBeanUtils {
         List<Field> sourceFields = getFields(source.getClass());
         List<Field> destFields = getFields(destination.getClass());
 
-        // 遍历目标对象的字段
+        // Iterate over the fields of the target object
         for (Field destField : destFields) {
-            // 在源对象中查找同名同类型的字段
+            // Find the corresponding field in the source object with the same name and type
             sourceFields.stream()
                 .filter(sourceField -> isFieldMatch(sourceField, destField))
                 .findFirst()
@@ -53,10 +53,10 @@ public class CopyBeanUtils {
     }
 
     /**
-     * 获取类的所有字段（包括父类字段），并缓存结果
+     * Get all fields (including parent class fields) of a class, and cache the result
      *
-     * @param clazz 要获取字段的类
-     * @return 类的所有字段列表
+     * @param clazz Class to get fields from
+     * @return List of all fields in the class
      */
     private static List<Field> getFields(Class<?> clazz) {
         return FIELDS_CACHE.computeIfAbsent(clazz, k -> {
@@ -65,7 +65,7 @@ public class CopyBeanUtils {
                 .filter(field -> !Modifier.isFinal(field.getModifiers()))
                 .collect(Collectors.toList());
 
-            // 获取父类的字段
+            // Get the fields of the parent class
             Class<?> superClass = k.getSuperclass();
             while (superClass != null && superClass != Object.class) {
                 fields.addAll(Arrays.stream(superClass.getDeclaredFields())
@@ -80,11 +80,11 @@ public class CopyBeanUtils {
     }
 
     /**
-     * 判断两个字段是否匹配（名称和类型都相同）
+     * Determine if two fields match (both name and type are the same)
      *
-     * @param sourceField 源字段
-     * @param destField 目标字段
-     * @return 如果字段匹配返回true，否则返回false
+     * @param sourceField Source field
+     * @param destField Target field
+     * @return If the fields match, return true; otherwise, return false
      */
     private static boolean isFieldMatch(Field sourceField, Field destField) {
         return sourceField.getName().equals(destField.getName()) &&
@@ -92,12 +92,12 @@ public class CopyBeanUtils {
     }
 
     /**
-     * 复制字段值
+     * Copy field value
      *
-     * @param source 源对象
-     * @param destination 目标对象
-     * @param sourceField 源字段
-     * @param destField 目标字段
+     * @param source Source object
+     * @param destination Target object
+     * @param sourceField Source field
+     * @param destField Target field
      */
     private static void copyFieldValue(Object source, Object destination, Field sourceField, Field destField) {
         try {
@@ -106,16 +106,16 @@ public class CopyBeanUtils {
             Object value = sourceField.get(source);
             destField.set(destination, value);
         } catch (Exception e) {
-            log.warn("复制字段值失败: {} -> {}", sourceField.getName(), destField.getName(), e);
+            log.warn("Failed to copy field value: {} -> {}", sourceField.getName(), destField.getName(), e);
         }
     }
 
     /**
-     * 创建目标类的新实例并复制属性
+     * Create a new instance of the target class and copy attributes
      *
-     * @param source 源对象
-     * @param targetClass 目标类
-     * @return 复制属性后的新实例
+     * @param source Source object
+     * @param targetClass Target class
+     * @return The new instance after copying attributes
      */
     public static <T> T copyProperties(Object source, Class<T> targetClass) {
         if (source == null) {

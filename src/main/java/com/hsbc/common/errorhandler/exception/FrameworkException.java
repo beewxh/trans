@@ -1,8 +1,8 @@
 package com.hsbc.common.errorhandler.exception;
 
 /**
- * 框架异常类
- * 用于表示框架层面的异常情况，如配置错误、反射调用失败等
+ * Framework Exception
+ * Used to represent framework-level exceptions, such as configuration errors, initialization failures, etc.
  *
  * @author rd
  * @version 1.0
@@ -11,35 +11,35 @@ package com.hsbc.common.errorhandler.exception;
 public class FrameworkException extends RuntimeException {
 
     /**
-     * 默认构造函数
-     */
-    public FrameworkException() {
-        super();
-    }
-
-    /**
-     * 使用异常消息和原因构造异常
+     * Constructor with error message
      *
-     * @param message 异常消息
-     * @param cause 原因
-     */
-    public FrameworkException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    /**
-     * 使用异常消息构造异常
-     *
-     * @param message 异常消息
+     * @param message Error message
      */
     public FrameworkException(String message) {
         super(message);
     }
 
     /**
-     * 使用原因构造异常
+     * Constructor with error message and cause
      *
-     * @param cause 原因
+     * @param message Error message
+     * @param cause Exception cause
+     */
+    public FrameworkException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    /**
+     * Default constructor
+     */
+    public FrameworkException() {
+        super();
+    }
+
+    /**
+     * Constructor with cause
+     *
+     * @param cause Exception cause
      */
     public FrameworkException(Throwable cause) {
         super(cause);

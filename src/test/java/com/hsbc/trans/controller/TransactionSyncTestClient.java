@@ -1,6 +1,5 @@
 package com.hsbc.trans.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.hsbc.common.response.enums.ResponseCode;
 import com.hsbc.common.util.JsonUtils;
@@ -11,6 +10,7 @@ import com.hsbc.trans.enums.TransactionType;
 import com.hsbc.trans.vo.TransactionReq;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -27,11 +27,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 /**
- * 交易并发测试客户端
- * 用于测试交易系统在并发场景下的行为，包括并发更新和删除操作
+ * Transaction Concurrency Test Client
+ * Tests the behavior of the transaction system in concurrent scenarios,
+ * including concurrent updates and delete operations
  *
  * @author rd
  * @version 1.0
@@ -41,25 +40,25 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TransactionSyncTestClient {
 
     /**
-     * 测试服务器地址
+     * Test server address
      */
     private static final String BASE_URL = "http://localhost:8080";
 
     /**
-     * HTTP客户端
+     * HTTP client
      */
     private final HttpClient httpClient = HttpClient.newBuilder()
         .connectTimeout(Duration.ofSeconds(10))
         .build();
 
     /**
-     * 线程池
+     * Thread pool
      */
     private ExecutorService executorService;
 
     /**
-     * 测试前的准备工作
-     * 初始化线程池
+     * Setup before tests
+     * Initializes the thread pool
      */
     @BeforeEach
     void setUp() {
@@ -67,8 +66,8 @@ public class TransactionSyncTestClient {
     }
 
     /**
-     * 测试后的清理工作
-     * 关闭线程池并清理测试数据
+     * Cleanup after tests
+     * Shuts down the thread pool and cleans up test data
      */
     @AfterEach
     void tearDown() throws Exception {
@@ -80,12 +79,13 @@ public class TransactionSyncTestClient {
     }
 
     /**
-     * 测试并发更新交易状态
-     * 多个线程同时更新同一笔交易的状态，验证并发控制的有效性
+     * Test concurrent transaction status updates
+     * Multiple threads update the status of the same transaction simultaneously,
+     * verifying the effectiveness of concurrency control
      */
     @Test
     void testConcurrentUpdateStatus() throws Exception {
-        // 创建测试交易
+        // Create test transaction
         Transaction transaction = createTestTransaction();
         assertNotNull(transaction);
 
@@ -94,7 +94,7 @@ public class TransactionSyncTestClient {
         CountDownLatch endLatch = new CountDownLatch(threadCount);
         List<Exception> exceptions = new ArrayList<>();
 
-        // 启动多个线程并发更新
+        // Start multiple threads for concurrent updates
         for (int i = 0; i < threadCount; i++) {
             final int index = i;
             executorService.submit(() -> {
@@ -110,24 +110,25 @@ public class TransactionSyncTestClient {
             });
         }
 
-        // 触发并发更新
+        // Trigger concurrent updates
         startLatch.countDown();
         endLatch.await(30, TimeUnit.SECONDS);
 
-        // 验证结果
-        assertTrue(exceptions.isEmpty(), "并发更新过程中发生异常");
+        // Verify results
+        assertTrue(exceptions.isEmpty(), "Exceptions occurred during concurrent updates");
         Transaction updatedTransaction = queryTransaction(transaction.getId());
         assertNotNull(updatedTransaction);
         assertNotEquals(TransactionStatus.PENDING, updatedTransaction.getStatus());
     }
 
     /**
-     * 测试并发删除交易
-     * 多个线程同时尝试删除同一笔交易，验证并发控制的有效性
+     * Test concurrent transaction deletion
+     * Multiple threads attempt to delete the same transaction simultaneously,
+     * verifying the effectiveness of concurrency control
      */
     @Test
     void testConcurrentDelete() throws Exception {
-        // 创建测试交易
+        // Create test transaction
         Transaction transaction = createTestTransaction();
         assertNotNull(transaction);
 
@@ -136,7 +137,7 @@ public class TransactionSyncTestClient {
         CountDownLatch endLatch = new CountDownLatch(threadCount);
         List<Exception> exceptions = new ArrayList<>();
 
-        // 启动多个线程并发删除
+        // Start multiple threads for concurrent deletion
         for (int i = 0; i < threadCount; i++) {
             executorService.submit(() -> {
                 try {
@@ -150,21 +151,21 @@ public class TransactionSyncTestClient {
             });
         }
 
-        // 触发并发删除
+        // Trigger concurrent deletion
         startLatch.countDown();
         endLatch.await(30, TimeUnit.SECONDS);
 
-        // 验证结果
-        assertEquals(threadCount - 1, exceptions.size(), "应该只有一个线程删除成功");
+        // Verify results
+        assertEquals(threadCount - 1, exceptions.size(), "Only one thread should succeed in deletion");
         Transaction deletedTransaction = queryTransaction(transaction.getId());
         assertNull(deletedTransaction);
     }
 
     /**
-     * 创建测试交易
+     * Creates a test transaction
      *
-     * @return 创建的交易记录
-     * @throws Exception 如果创建过程中发生错误
+     * @return The created transaction record
+     * @throws Exception if an error occurs during creation
      */
     private Transaction createTestTransaction() throws Exception {
         TransactionReq req = new TransactionReq();
@@ -172,7 +173,7 @@ public class TransactionSyncTestClient {
         req.setUserId("TEST_USER");
         req.setAmount(new BigDecimal("100.00"));
         req.setType(TransactionType.DEPOSIT);
-        req.setDescription("测试交易");
+        req.setDescription("Test Transaction");
 
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(BASE_URL + "/transactions"))
@@ -190,11 +191,11 @@ public class TransactionSyncTestClient {
     }
 
     /**
-     * 更新交易状态
+     * Updates transaction status
      *
-     * @param id 交易ID
-     * @param status 新的交易状态
-     * @throws Exception 如果更新过程中发生错误
+     * @param id Transaction ID
+     * @param status New transaction status
+     * @throws Exception if an error occurs during update
      */
     private void updateTransactionStatus(Long id, TransactionStatus status) throws Exception {
         Transaction transaction = new Transaction();
@@ -209,15 +210,15 @@ public class TransactionSyncTestClient {
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() != 200) {
-            throw new Exception("更新交易状态失败: " + response.body());
+            throw new Exception("Failed to update transaction status: " + response.body());
         }
     }
 
     /**
-     * 删除交易
+     * Deletes a transaction
      *
-     * @param id 要删除的交易ID
-     * @throws Exception 如果删除过程中发生错误
+     * @param id Transaction ID to delete
+     * @throws Exception if an error occurs during deletion
      */
     private void deleteTransaction(Long id) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
@@ -227,16 +228,16 @@ public class TransactionSyncTestClient {
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() != 200) {
-            throw new Exception("删除交易失败: " + response.body());
+            throw new Exception("Failed to delete transaction: " + response.body());
         }
     }
 
     /**
-     * 查询交易
+     * Queries a transaction
      *
-     * @param id 要查询的交易ID
-     * @return 交易记录，如果不存在则返回null
-     * @throws Exception 如果查询过程中发生错误
+     * @param id Transaction ID to query
+     * @return Transaction record, returns null if not found
+     * @throws Exception if an error occurs during query
      */
     private Transaction queryTransaction(Long id) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
@@ -258,9 +259,9 @@ public class TransactionSyncTestClient {
     }
 
     /**
-     * 清理测试数据
+     * Clears test data
      *
-     * @throws Exception 如果清理过程中发生错误
+     * @throws Exception if an error occurs during clearing
      */
     private void clearTestData() throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
