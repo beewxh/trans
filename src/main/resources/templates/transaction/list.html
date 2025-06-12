@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>Transaction List</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <h2>Transaction List</h2>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>ID</th>
+                        <th>Transaction ID</th>
+                        <th>User ID</th>
+                        <th>Amount</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Updated</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="transaction, stat : ${transactions}">
+                        <td th:text="${currentPage * 10 + stat.count}"></td>
+                        <td th:text="${transaction.id}"></td>
+                        <td th:text="${transaction.transId}"></td>
+                        <td th:text="${transaction.userId}"></td>
+                        <td th:text="${#numbers.formatDecimal(transaction.amount, 1, 2)}"></td>
+                        <td>
+                            <span class="badge" th:classappend="${'bg-' + (#strings.toLowerCase(transaction.type) == 'withdrawal' ? 'danger' : (#strings.toLowerCase(transaction.type) == 'deposit' ? 'success' : 'info'))}"
+                                  th:text="${transaction.type}"></span>
+                        </td>
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-sm dropdown-toggle" th:classappend="${'btn-' + (#strings.toLowerCase(transaction.status) == 'completed' ? 'success' : (#strings.toLowerCase(transaction.status) == 'failed' ? 'danger' : (#strings.toLowerCase(transaction.status) == 'cancelled' ? 'secondary' : 'warning')))}"
+                                        type="button" data-bs-toggle="dropdown">
+                                    <span th:text="${transaction.status}"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li th:each="status : ${transactionStatuses}">
+                                        <form th:id="'updateStatusForm_' + ${transaction.id} + '_' + ${status}" 
+                                              th:action="@{/web/transactions/{id}/update-status(id=${transaction.id})}" 
+                                              method="post" 
+                                              onsubmit="return handleStatusUpdate(event, this);">
+                                            <input type="hidden" name="status" th:value="${status}">
+                                            <button type="submit" class="dropdown-item" th:text="${status}"></button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td th:text="${#dates.format(transaction.createTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                        <td th:text="${#dates.format(transaction.updateTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                        <td th:text="${transaction.description}"></td>
+                        <td>
+                            <form th:action="@{/web/transactions/{id}/delete(id=${transaction.id})}" method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this transaction?')">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <nav th:if="${totalPages > 1}">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
+                    <a class="page-link" th:href="@{/web/transactions(page=${currentPage - 1})}">&laquo;</a>
+                </li>
+                <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                    th:classappend="${currentPage == i ? 'active' : ''}">
+                    <a class="page-link" th:href="@{/web/transactions(page=${i})}" th:text="${i + 1}"></a>
+                </li>
+                <li class="page-item" th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
+                    <a class="page-link" th:href="@{/web/transactions(page=${currentPage + 1})}">&raquo;</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div layout:fragment="scripts">
+        <script>
+            function handleStatusUpdate(event, form) {
+                event.preventDefault();
+                
+                fetch(form.action, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === '000000') {
+                        alert('Status updated successfully!');
+                        location.reload();
+                    } else {
+                        alert(`[${data.code}][${data.type}] ${data.message}`);
+                    }
+                })
+                .catch(error => {
+                    alert('An error occurred while updating the status.');
+                });
+                
+                return false;
+            }
+        </script>
+    </div>
+</body>
+</html> 
