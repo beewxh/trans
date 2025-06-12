@@ -35,15 +35,13 @@ public class TransactionWebController {
 
     @GetMapping
     public String listTransactions(
-            @RequestParam(defaultValue = "0") @PositiveOrZero String page,
-            @RequestParam(defaultValue = "10") @Positive String size,
+            @RequestParam(defaultValue = "0") @PositiveOrZero int page,
+            @RequestParam(defaultValue = "10") @Positive int size,
             Model model) {
-        int pageNumber = Integer.parseInt(page);
-        int pageSize = Integer.parseInt(size);
-        PageResult<Transaction> result = transactionService.getTransactionPage(new PageRequest(pageNumber, pageSize));
+        PageResult<Transaction> result = transactionService.getTransactionPage(new PageRequest(page, size));
         model.addAttribute("transactions", result.getContent());
-        model.addAttribute("currentPage", pageNumber);
-        model.addAttribute("totalPages", (result.getTotalElements() + pageSize - 1) / pageSize);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", (result.getTotalElements() + size - 1) / size);
         model.addAttribute("transactionTypes", TransactionType.values());
         model.addAttribute("transactionStatuses", TransactionStatus.values());
         return "transaction/list";
