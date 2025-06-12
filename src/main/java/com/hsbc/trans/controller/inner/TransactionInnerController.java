@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * 交易内部控制器
- * 提供内部数据管理功能，主要用于测试环境的数据维护
+ * Transaction Internal Controller
+ * Provides internal data management functionality, primarily used for data maintenance in test environments
  *
  * @author rd
  * @version 1.0
@@ -26,14 +26,14 @@ import java.util.List;
 public class TransactionInnerController {
 
     /**
-     * 交易服务
+     * Transaction service
      */
     private final TransactionService transactionService;
 
     /**
-     * 构造函数
+     * Constructor
      *
-     * @param transactionService 交易服务
+     * @param transactionService Transaction service
      */
     @Autowired
     public TransactionInnerController(TransactionService transactionService) {
@@ -41,10 +41,10 @@ public class TransactionInnerController {
     }
 
     /**
-     * 清空所有交易数据
-     * 此接口仅用于测试环境，用于清理测试数据
+     * Clears all transaction data
+     * This endpoint is only used in test environments for cleaning up test data
      *
-     * @return ResponseEntity 包含清理操作的响应结果
+     * @return ResponseEntity containing the response of the cleanup operation
      */
     @PostMapping("/clear")
     public ResponseEntity<CommonResponse<Void>> clearAllTransactions() {
