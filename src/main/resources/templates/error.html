@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>Error</title>
+    <style>
+        .error-container {
+            text-align: center;
+            padding: 40px 0;
+        }
+        .error-code {
+            font-size: 24px;
+            color: #dc3545;
+            margin-bottom: 20px;
+        }
+        .error-message {
+            font-size: 18px;
+            color: #6c757d;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="error-container">
+            <div class="error-code">
+                [<span th:text="${code}">ERROR</span>][<span th:text="${type}">UNKNOWN</span>]
+            </div>
+            <div class="error-message" th:text="${message}">
+                An error occurred.
+            </div>
+            <a href="/web/transactions" class="btn btn-primary">Return to Transaction List</a>
+        </div>
+    </div>
+</body>
+</html> 
