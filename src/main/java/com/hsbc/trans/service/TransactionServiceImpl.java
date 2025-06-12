@@ -91,7 +91,8 @@ public class TransactionServiceImpl implements TransactionService {
     public Transaction updateTransactionStatus(Long id, TransactionStatus status, String description) {
         Transaction transaction = this.getTransaction(id);
         if (!TransactionStatus.canTransit(transaction.getStatus(), status)) {
-            throw new BusinessException("Invalid transaction status transition: " + transaction.getStatus() + " -> " + status);
+            throw new BusinessException("Invalid transaction status transition: " + transaction.getStatus() + " -> " + status)
+                .code(ErrorCode.TRANSACTION_UPDATE_STATUS_INVALID.getCode());
         }
         transaction.setStatus(status);
         transaction.setDescription(description);
